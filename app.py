@@ -18,7 +18,7 @@ logger.addHandler(fh)
 
 
 
-SNAKE_COUNT = 5000
+SNAKE_COUNT = 2000
 CUT_OFF = 0.6
 WEIDTH = 800
 HEIGHT = 800
@@ -30,7 +30,7 @@ def fitness(par):
     l = par[0]
     t = par[1]
     d = par[2]
-    return 4*(l**2) - (10 if par[2] == 'w' else 5)/(l*1.3 - 2) + t/6*(l-2)
+    return 4 * l + t - (t if par[2] == 'w' else t*0.5)/l if par[2] != '' else 0
 
 
 def main():
@@ -43,13 +43,12 @@ def main():
             game1.move()
             game1.change_direction(CUT_OFF)
 
-
             root.after(1, main)
         else:
             # game1.game_ower()
             learning.set_population(game1.get_population())
-            f.write(f'Avr finess: {sum(learning.get_fitness)/len(learning.get_fitness)};avr time:{learning.get_avr_time()};avr len - {learning.get_avr_len()};best gene:{learning.best_genes()}')
-            print(f'Gen - {N}Avr finess: {sum(learning.get_fitness) / len(learning.get_fitness)};avr time:{learning.get_avr_time()};avr len - {learning.get_avr_len()}')
+            f.write(f'Avr finess {round(sum(learning.get_fitness)/len(learning.get_fitness),2)} avr time {round(learning.get_avr_time(),2)} avr len {round(learning.get_avr_len(),4)};best gene:{learning.best_genes()}')
+            print(f'Gen - {N}Avr finess {round(sum(learning.get_fitness)/len(learning.get_fitness),2)} avr time {round(learning.get_avr_time(),2)} avr len {round(learning.get_avr_len(),4)}')
             generation = learning.run()
             game1.clear_snakes()
             for g in generation:
@@ -70,7 +69,7 @@ game1 = Game.Game(root, WEIDTH, HEIGHT)
 logger.info(f"Created game field. WEIDTH = {WEIDTH} ;HEIGHT = {HEIGHT}")
 
 game1.add_snakes(SNAKE_COUNT, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True))
-learning = pyann.GeneticAlgorithm(0.6, 0.2, fitness)
+learning = pyann.GeneticAlgorithm(0.3, 0.2, fitness)
 # game1.add_snakes(SNAKE_COUNT, 'HUMAN')
 logger.info(f"Created SNAKE_COUNT {SNAKE_COUNT}")
 

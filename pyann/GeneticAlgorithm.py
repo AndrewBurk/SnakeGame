@@ -25,33 +25,36 @@ class GeneticAlgorithm:
         self.__genes.sort(key = takeSecond,reverse = True)
 
     def run(self):
-        result = []
-        survivors = int(self.__s*len(self.__genes)) + 1
-        randomIndexes = random.sample(range(len(self.__genes)), survivors)
-        for i in range(survivors):
-            result.append(self.__crossover__(self.__genes[i][0], self.__genes[randomIndexes[i]][0]))
+        population = [x[0] for x in self.__genes]
+        survivors = []
+        deadList = []
+        N = len(self.__genes)
 
+        for i in range(int(self.__s*len(self.__genes)) + 1):
+            survivors.append(population.pop(i))
 
-        r = int(self.__m*len(self.__genes)) + 1
-        randomIndexes = random.sample(range(len(self.__genes)-survivors), r)
-        for i in randomIndexes:
-            result.append(self.__mutation__(self.__genes[i+survivors][0]))
-
-        r = len(self.__genes) - int(self.__m*len(self.__genes))  - int(self.__s*len(self.__genes)) - 2
-
-
-        for i in range(r):
-            result.append(self.__genes[i][0])
-        # print(f'len of res - {len(result)}')
-
-        return result
+        for i in range(int(self.__m*len(self.__genes)) + 1):
+            deadList.append(population.pop(i))
+        population.clear()
+        population = deadList + survivors
+        k = len(population)
+        z=0
+        r1 = random.sample(range(len(survivors)),len(survivors))
+        r2 = random.sample(range(len(deadList)),len(deadList))
+        for (i, j) in ((i1, j2) for i1 in r1 for j2 in r2):
+            k  += 1
+            if k <= N:
+                population.append(self.__crossover__(survivors[i], deadList[j]))
+                z +=1
+            else:
+                break
+        return self.__mutation__(population)
 
     def __crossover__(self, gene1, gene2):
         if len(gene1) != len( gene2 ):
             raise ValueError( f'Len of the genes should be the same gene1 -  {len( gene1 )} ; gene2 - {len( gene2 )}.' )
-            r = random.randint(0,len(gene1))
-            indexes_gene1 = random.sample(range(len(gene1)), r)
-
+            # half of genome will be changed
+            indexes_gene1 = random.sample(range(len(gene1) - 1), int(len(gene1) / 2))
             for i in range(r):
                 gene1[indexes_gene1[i]] = gene2[indexes_gene1[i]]
         return gene1
@@ -59,12 +62,10 @@ class GeneticAlgorithm:
 
     def __mutation__(self, gene):
 
-        r = random.randint(0, len(gene))
-        randomIndexes = random.sample(range(len(gene)), r)
+        r = random.randint(0, int(len(gene) / 2) - 1)
+        randomIndexes = random.sample(range(int(len(gene) / 2) - 1), r)
         for i in randomIndexes:
-            gene[i] += 2 * random.random() - 1
-
-
+            gene[i + int(len(gene) / 2)] += 2 * random.random() - 1
         return gene
 
     def best_genes(self):

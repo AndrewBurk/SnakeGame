@@ -23,7 +23,7 @@ class Snake(object):
         self.vector = self.mapping["Right"]
         self.is_active = 'y'
         self.lifeTime = 0
-        self.__death = ('w', 's') # w - collisiom with wall. s - collisium with snake
+        self.__death = ('w', 's') # w - collisium with wall. s - collisium with snake
 
     def move(self, seg_size, canvas):
         """ Moves the snake with the specified vector"""
@@ -43,8 +43,6 @@ class Snake(object):
         x = last_seg[2] - seg_size
         y = last_seg[3] - seg_size
         self.segments.insert(0, Segment(x, y, seg_size, canvas))
-        # if len(self.segments) > 3:
-        #     print(len(self.segments))
 
     def change_direction(self, direction):
         """ Changes direction of snake """
