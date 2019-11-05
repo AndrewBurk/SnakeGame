@@ -1,2 +1,0 @@
-from pyann.ArtificialNeuralNetwork import ArtificialNeuralNetwork
-from pyann.GeneticAlgorithm import GeneticAlgorithm
