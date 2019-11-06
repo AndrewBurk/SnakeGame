@@ -150,58 +150,54 @@ class Game(object):
             # segment coordinate
             xs1, ys1 = self.__c.coords(snake[0].segments[index].instance)[:2]
             up.append(
-                (yh1 - ys1) / self.__seg_size if xs1 == xh1 and ys1 < yh1 else 0)  # direction up
-            right.append((xs1 - xh1) /
-                         self.__seg_size if ys1 == yh1 and xs1 > xh1 else 0)  # direction right
-            down.append((ys1 - yh1) /
-                        self.__seg_size if xs1 == xh1 and ys1 > yh1 else 0)  # direction down
-            left.append((xh1 - xs1) /
-                        self.__seg_size if ys1 == yh1 and xs1 < xh1 else 0)  # direction left
+                (yh1 - ys1) if xs1 == xh1 and ys1 < yh1 else 0)  # direction up
+            right.append((xs1 - xh1)if ys1 == yh1 and xs1 > xh1 else 0)  # direction right
+            down.append((ys1 - yh1) if xs1 == xh1 and ys1 > yh1 else 0)  # direction down
+            left.append((xh1 - xs1) if ys1 == yh1 and xs1 < xh1 else 0)  # direction left
 
-        result.append(max(up))
-        result.append(max(right))
-        result.append(max(down))
-        result.append(max(left))
+        result.append(max(up) / (self.__wHeight))
+        result.append(max(right) / (self.__wWidth))
+        result.append(max(down) / (self.__wHeight))
+        result.append(max(left) / (self.__wWidth))
 
         # adding distance to the wall;
-        result.append(yh1 / self.__seg_size)  # direction up
-        result.append((self.__wWidth - xh1) / self.__seg_size - 1)  # direction right
-        result.append((self.__wHeight - yh1) / self.__seg_size - 1)  # direction down
-        result.append(xh1 / self.__seg_size)  # direction left
+        result.append(yh1 / self.__wHeight )  # direction up
+        result.append((self.__wWidth - xh1 - self.__seg_size ) / self.__wWidth)  # direction right
+        result.append((self.__wHeight - yh1 - self.__seg_size) /self.__wHeight)  # direction down
+        result.append(xh1 / self.__wWidth )  # direction left
         # ['Down', 'Up', 'Left', 'Right']
         # distance to the food;
         result.append(
-            (yh1 - yf1) / self.__seg_size if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
+            (yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
         result.append(
-            (xf1 - xh1) / self.__seg_size - 1 if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
+            (xf1 - xh1) / self.__wWidth - 1 if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
         result.append(
-            (yf1 - yh1) / self.__seg_size - 1 if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
+            (yf1 - yh1) / self.__wHeight - 1 if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
         result.append(
-            (xh1 - xf1) / self.__seg_size if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
+            (xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
 
         # dist to wall by croos
-        result.append((self.__wWidth - xh1 - self.__seg_size if xh1 + yh1 >= self.__wWidth else yh1) * 2 / self.__seg_size)  # A
-        result.append((self.__wHeight - yh1 if yh1 - xh1 + self.__wWidth >= self.__wHeight else self.__wHeight - xh1) * 2 / self.__seg_size - 2)  # D
-        result.append((self.__wHeight - yh1 - self.__seg_size if xh1 + yh1 >= self.__wHeight else xh1) * 2 / self.__seg_size)  # B
-        result.append((yh1 if xh1 - yh1 >= 0 else xh1) * 2 / self.__seg_size)  # C
+        result.append(((self.__wWidth - xh1 - self.__seg_size) / self.__wWidth if xh1 + yh1 >= self.__wWidth else yh1 / self.__wHeight) * 2 )  # A
+        result.append(((self.__wHeight - yh1 - 2 * self.__seg_size) / self.__wHeight if yh1 - xh1 + self.__wWidth >= self.__wHeight else (self.__wHeight - xh1 - 2*self.__seg_size) / self.__wHeight ) * 2)  # D
+        result.append(((self.__wHeight - yh1 - self.__seg_size) / self.__wHeight if xh1 + yh1 >= self.__wHeight else xh1  / self.__wWidth) * 2)  # B
+        result.append((yh1 / self.__wHeight if xh1 - yh1 >= 0 else xh1 / self.__wWidth) * 2)  # C
 
         # dist to food by cos
-        result.append((xf1 - xh1)*2 / self.__seg_size if xf1 + yf1 - xh1 - yh1 == 0 and yf1 < yh1 and xf1 > xh1 else 0) #A
+        result.append((xf1 - xh1)*2 / self.__wWidth if xf1 + yf1 - xh1 - yh1 == 0 and yf1 < yh1 and xf1 > xh1 else 0) #A
         result.append(
-            (yf1 - yh1) * 2 / self.__seg_size if yf1 - xf1 + xh1 - yh1 == 0 and yf1 > yh1 and xf1 > xh1 else 0)  # D
+            (yf1 - yh1) * 2 / self.__wHeight if yf1 - xf1 + xh1 - yh1 == 0 and yf1 > yh1 and xf1 > xh1 else 0)  # D
         result.append(
-            (yf1 - yh1) * 2 / self.__seg_size if yf1 + xf1 - xh1 - yh1 == 0 and yf1 > yh1 and xf1 < xh1 else 0)  # B
+            (yf1 - yh1) * 2 / self.__wHeight if yf1 + xf1 - xh1 - yh1 == 0 and yf1 > yh1 and xf1 < xh1 else 0)  # B
         result.append(
-            (yh1 - yf1) * 2 / self.__seg_size if yf1 - xf1 + xh1 - yh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0)  # c
+            (yh1 - yf1) * 2 / self.__wHeight if yf1 - xf1 + xh1 - yh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0)  # c
         # for seg in snake.segments:
         #     xh1, yh1 = self.__c.coords(seg.instance)[:2]
         # print(f'({xh1 / 20},{yh1 / 20})')
 
-        r = (((yh1 - yf1) ** 2) / (self.__seg_size * self.__seg_size) + ((xh1 - xf1) ** 2) / (
-                    self.__seg_size * self.__seg_size)) ** 0.5
+        r = (((yh1 - yf1) ** 2) / (self.__wHeight ** 2) + ((xh1 - xf1) ** 2) / (self.__wWidth ** 2)) ** 0.5
         result.append(r)
-        result.append((xh1) / self.__seg_size)  # direction left
-        result.append((yh1) / self.__seg_size)  # directi rigth
+        result.append((xh1) / self.__wWidth)  # direction left
+        result.append((yh1) / self.__wHeight)  # directi rigth
         return result
 
     def game_ower(self):
