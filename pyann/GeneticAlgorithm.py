@@ -1,4 +1,3 @@
-import numpy as np
 import random
 
 def takeSecond(elem):
@@ -17,31 +16,40 @@ class GeneticAlgorithm:
         self.__f = fitness
         self.__genes = []
 
-    def __convertToBinView__(self):
-        temp = [round(x[0],2) for x in self.__stats]
-        bin = []
+    def __Bin__(self, v):
         # I assume that value will be from -1 to 1. e = 0.01
         # bin = (x - xmin)*(2^l-1)/(xmax-xmin)
         # from above x = bin * (xmax- xmin)/(2^l-1) + xmin; bin should be in dex
         # for e=0.01 l = 6
         min = -1
         max = 1
-        for x in temp:
-            for el in x:
-                b = bin((el - min)*(2 ** 6 - 1)/(max - min)).replace('0b','')
-                zero = ' '
-                for i in range(6 - len(b)):
-                    b = '0' + b
-                b = bin + b
-            bin.append()
+        res = ''
+        for x in v:
+            s = bin(int((x - min)*(2 ** 7 - 1)/(max - min))).replace('0b', '')
+            for i in range(7 - len(s)):
+                s = '0' + s
+            res += s
+        return res
+
+    def __Dec__(self, s):
+        min = -1
+        max = 1
+        res = []
+        i = 0
+        while i < len(s) - 7:
+            x = min + int('0b'+s[i:i+7],2)*(max-min)/(2 ** 7 - 1)
+            res.append(x)
+            i += 7
+        return res
+
 
     def set_population(self, population):
         self.__genes = []
         self.__stats = [x[1] for x in population]
+        # added BIN code onto genes
         for p in population:
-            self.__genes.append((np.array(p[0]), self.__f(p[1])))
+            self.__genes.append((self.__Bin__(p[0]), self.__f(p[1])))
         self.__genes.sort(key = takeSecond,reverse = True)
-        print([x[1] for x in self.__genes])
 
     def run(self):
         population = [x[0] for x in self.__genes]
@@ -49,43 +57,43 @@ class GeneticAlgorithm:
         deadList = []
         N = len(self.__genes)
 
-        for i in range(int(self.__s*len(self.__genes)) + 1):
+        for i in range(int(self.__s*len(self.__genes))):
             survivors.append(population.pop(i))
 
-        for i in range(int(self.__m*len(self.__genes)) + 1):
+        for i in range(int(self.__m*len(self.__genes))):
             deadList.append(population.pop(i))
         population.clear()
         population = deadList + survivors
         k = len(population)
-        z=0
         r1 = random.sample(range(len(survivors)),len(survivors))
-        r2 = random.sample(range(len(deadList)),len(deadList))
+        r2 = random.sample(range(len(survivors)),len(survivors))
         for (i, j) in ((i1, j2) for i1 in r1 for j2 in r2):
-            k  += 1
+            k  += 2
             if k <= N:
-                population.append(self.__crossover__(survivors[i], deadList[j]))
-                z +=1
+                t = self.__crossover__(survivors[i], survivors[j])
+                population.append(t[0])
+                population.append(t[1])
             else:
                 break
-        return self.__mutation__(population)
+
+        r1 = random.sample(range(len(population)),int(len(population)*0.01))
+        for i in r1:
+            population[i] = self.__mutation__(population[i])
+
+        return [self.__Dec__(x) for x in population]
 
     def __crossover__(self, gene1, gene2):
         if len(gene1) != len( gene2 ):
             raise ValueError( f'Len of the genes should be the same gene1 -  {len( gene1 )} ; gene2 - {len( gene2 )}.' )
             # half of genome will be changed
-            indexes_gene1 = random.sample(range(len(gene1) - 1), int(len(gene1) / 2))
-            for i in range(r):
-                gene1[indexes_gene1[i]] = gene2[indexes_gene1[i]]
-        return gene1
+        r = random.randint(1,len(gene1)-1)
+        return (gene1[:r] + gene2[r:],gene2[:r] + gene1[r:])
 
 
     def __mutation__(self, gene):
-
-        r = random.randint(0, int(len(gene) / 2) - 1)
-        randomIndexes = random.sample(range(int(len(gene) / 2) - 1), r)
-        for i in randomIndexes:
-            gene[i + int(len(gene) / 2)] += 2 * random.random() - 1
-        return gene
+        r = random.randint(0, len(gene) - 1)
+        s = '0' if gene[r] == '1' else '1'
+        return s + gene[1:] if r == 0 else gene[:r - 1] + s + s[r + 1:]
 
     def best_genes(self):
         return self.__genes[0]
@@ -100,4 +108,3 @@ class GeneticAlgorithm:
     def get_avr_len(self):
         tmp = [x[0] for x in self.__stats]
         return sum(tmp)/len(tmp)
-
