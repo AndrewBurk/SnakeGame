@@ -30,7 +30,7 @@ def fitness(par):
     l = par[0]
     t = par[1]
     d = par[2]
-    return 4 * l + t - (t if par[2] == 'w' else t*0.5)/l if par[2] != '' else 0
+    return 4 * l + t - (t if par[2] == 'w' else t*0.5)/l
 
 
 def main():

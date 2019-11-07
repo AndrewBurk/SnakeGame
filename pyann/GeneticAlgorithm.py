@@ -17,12 +17,31 @@ class GeneticAlgorithm:
         self.__f = fitness
         self.__genes = []
 
+    def __convertToBinView__(self):
+        temp = [round(x[0],2) for x in self.__stats]
+        bin = []
+        # I assume that value will be from -1 to 1. e = 0.01
+        # bin = (x - xmin)*(2^l-1)/(xmax-xmin)
+        # from above x = bin * (xmax- xmin)/(2^l-1) + xmin; bin should be in dex
+        # for e=0.01 l = 6
+        min = -1
+        max = 1
+        for x in temp:
+            for el in x:
+                b = bin((el - min)*(2 ** 6 - 1)/(max - min)).replace('0b','')
+                zero = ' '
+                for i in range(6 - len(b)):
+                    b = '0' + b
+                b = bin + b
+            bin.append()
+
     def set_population(self, population):
         self.__genes = []
         self.__stats = [x[1] for x in population]
         for p in population:
             self.__genes.append((np.array(p[0]), self.__f(p[1])))
         self.__genes.sort(key = takeSecond,reverse = True)
+        print([x[1] for x in self.__genes])
 
     def run(self):
         population = [x[0] for x in self.__genes]
