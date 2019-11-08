@@ -1,16 +1,28 @@
-import random
-
-
 class Segment(object):
     """ Single snake segment """
 
-    def __init__(self, x, y, seg_size, canvas, color='white'):
-        self.instance = canvas.create_rectangle(x, y,
-                                                x + seg_size, y + seg_size,
-                                                fill=color)
+    def __init__(self, x, y, seg_size, canvas=None, color='white'):
+        if canvas != None:
+            self.__instance = canvas.create_rectangle(x, y, x + seg_size, y + seg_size, fill=color)
+        else:
+            self.__instance = (x, y, x + seg_size, y + seg_size)
 
+    def get_coords(self, canvas=None):
+        return canvas.coords(self.__instance) if canvas != None else self.__instance
 
-class Snake(object):
+    def draw(self, x1, y1, x2, y2, canvas=None):
+        if canvas != None:
+            canvas.coords(self.__instance, x1, y1, x2, y2)
+        else:
+            self.__instance = (x1, y1, x2, y2)
+
+    def delete(self,canvas=None):
+        if canvas != None:
+            canvas.delete(self.__instance)
+        else:
+            self.__instance = ()
+
+class Snake:
     """ Simple Snake class """
 
     def __init__(self, segments):
@@ -23,23 +35,22 @@ class Snake(object):
         self.vector = self.mapping["Right"]
         self.is_active = 'y'
         self.lifeTime = 0
-        self.__death = ('w', 's') # w - collisium with wall. s - collisium with snake
+        self.__death = ('w', 's')  # w - collisium with wall. s - collisium with snake
 
     def move(self, seg_size, canvas):
         """ Moves the snake with the specified vector"""
         for index in range(len(self.segments) - 1):
-            segment = self.segments[index].instance
-            x1, y1, x2, y2 = canvas.coords(self.segments[index + 1].instance)
-            canvas.coords(segment, x1, y1, x2, y2)
+            x1, y1, x2, y2 = self.segments[index + 1].get_coords(canvas)
+            self.segments[index].draw(x1, y1, x2, y2, canvas)
 
-        x1, y1, x2, y2 = canvas.coords(self.segments[-2].instance)
-        canvas.coords(self.segments[-1].instance,
-                      x1 + self.vector[0] * seg_size, y1 + self.vector[1] * seg_size,
-                      x2 + self.vector[0] * seg_size, y2 + self.vector[1] * seg_size)
+        x1, y1, x2, y2 = self.segments[-2].get_coords(canvas)
+        self.segments[-1].draw(
+                x1 + self.vector[0] * seg_size, y1 + self.vector[1] * seg_size,
+                x2 + self.vector[0] * seg_size, y2 + self.vector[1] * seg_size, canvas)
 
     def add_segment(self, canvas, seg_size):
         """ Adds segment to the snake """
-        last_seg = canvas.coords(self.segments[0].instance)
+        last_seg = self.segments[0].get_coords(canvas)
         x = last_seg[2] - seg_size
         y = last_seg[3] - seg_size
         self.segments.insert(0, Segment(x, y, seg_size, canvas))
@@ -59,14 +70,10 @@ class Snake(object):
 
     def reset_snake(self, canvas, life_time, death):
         for segment in self.segments:
-            canvas.delete(segment.instance)
+            segment.delete(canvas)
         self.is_active = 'n'
         self.lifeTime = life_time
         self.__death = death
 
     def get_snake_attributes(self):
         return len(self.segments), self.lifeTime, self.__death
-
-
-
-
