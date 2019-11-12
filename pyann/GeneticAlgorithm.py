@@ -14,7 +14,8 @@ class GeneticAlgorithm:
         self.__s = survivors
         self.__m = mutation
         self.__f = fitness
-        self.__genes = []
+        self.__parents = []
+        self.__childs = []
 
     def __Bin__(self, v):
         # I assume that value will be from -1 to 1. e = 0.01
@@ -43,44 +44,54 @@ class GeneticAlgorithm:
         return res
 
 
-    def set_population(self, population):
-        self.__genes = []
+    def set_population(self, population, type):
+        self.__parents = []
         self.__stats = [x[1] for x in population]
-        # added BIN code onto genes
-        for p in population:
-            self.__genes.append((self.__Bin__(p[0]), self.__f(p[1])))
-        self.__genes.sort(key = takeSecond,reverse = True)
+        if type not in ['parents', 'childs']:
+            raise ValueError( f'Type should be parents or childs - {type} ' )
 
-    def run(self):
-        population = [x[0] for x in self.__genes]
-        survivors = []
-        deadList = []
-        N = len(self.__genes)
+        if type == 'parents':
+            self.__stats = [x[1] for x in population]
+            for p in population:
+                self.__parents.append((self.__Bin__(p[0]), self.__f(p[1])))
+            self.__parents.sort(key=takeSecond, reverse=True)
+            #Am using Proportional selection to create a vector with candidates for selection
+            avrFitness = sum([x[1] for x in self.__parents]) / len(self.__parents)
+            self._selectionVector = []
+            for i in range(len(self.__parents)):
+                dm = divmod(self.__parents[i][1] / avrFitness, 1)
+                tmp = []
+                tmp.append(i)
+                self._selectionVector = self._selectionVector + tmp * int((dm[0] + 1 if random.random() <= dm[1] else 0))
+        elif type == 'childs':
+            for p in population:
+                self.__childs.append((self.__Bin__(p[0]), self.__f(p[1])))
+            self.__childs.sort(key=takeSecond,reverse=True)
 
-        for i in range(int(self.__s*len(self.__genes))):
-            survivors.append(population.pop(i))
+    def get_generation(self,N):
+        res = [x[0] for x in (self.__childs+self.__parents)]
+        res.sort(key=takeSecond,reverse=True)
+        return res[:N]
 
-        for i in range(int(self.__m*len(self.__genes))):
-            deadList.append(population.pop(i))
-        population.clear()
-        population = deadList + survivors
-        k = len(population)
-        r1 = random.sample(range(len(survivors)),len(survivors))
-        r2 = random.sample(range(len(survivors)),len(survivors))
-        for (i, j) in ((i1, j2) for i1 in r1 for j2 in r2):
-            k  += 2
-            if k <= N:
-                t = self.__crossover__(survivors[i], survivors[j])
-                population.append(t[0])
-                population.append(t[1])
-            else:
-                break
+    def get_childs(self):
+        survivors = int(self.__s * len(self.__parents))
+        childs = []
 
-        r1 = random.sample(range(len(population)),int(len(population)*0.01))
+        i = 0
+        while i <= survivors:
+            r1 = random.choice(self._selectionVector)
+            r2 = random.choice(self._selectionVector)
+            if r1 != r2:
+                kids = self.__crossover__(self.__parents[r1][0], self.__parents[r2][0])
+                childs.append(kids[0])
+                childs.append(kids[1])
+                i += 1
+
+        r1 = random.sample(range(len(childs)),int(len(childs)*0.01))
         for i in r1:
-            population[i] = self.__mutation__(population[i])
+            childs[i] = self.__mutation__(childs[i])
 
-        return [self.__Dec__(x) for x in population]
+        return [self.__Dec__(x)  for x in childs]
 
     def __crossover__(self, gene1, gene2):
         if len(gene1) != len( gene2 ):
@@ -96,10 +107,10 @@ class GeneticAlgorithm:
         return s + gene[1:] if r == 0 else gene[:r - 1] + s + s[r + 1:]
 
     def best_genes(self):
-        return self.__genes[0]
+        return self.__parents[0]
     @property
     def get_fitness(self):
-        return [x[1] for x in self.__genes]
+        return [x[1] for x in self.__parents]
 
     def get_avr_time(self):
         tmp = [x[1] for x in self.__stats]

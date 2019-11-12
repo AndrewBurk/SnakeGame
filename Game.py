@@ -7,11 +7,12 @@ import time
 GameMode = ('HUMAN', 'RANDOM', 'NATURAL_NETWORK')
 
 
-class Game(tk.Tk):
+class Game():
     def __init__(self, width, height, display=True):
-        tk.Tk.__init__(self)
-        self.title("PythonicWay Snake")
+
         if display:
+            self.__root = tk.Tk()
+            self.__root.title("PythonicWay Snake")
             self.__c = tk.Canvas(width=width, height=height, bg="#003300")
             self.__c.grid()
         else:
@@ -117,13 +118,14 @@ class Game(tk.Tk):
                 snake[0].change_direction(dir[r])
             else:
                 d = snake[1].run(self.get_snake_position(snake), cut_off)
-
-                if sum(d) == 1:
-                    snake[0].change_direction(dir[d.index(1)])
-                else:
-                        indexS = self.__snakes.index(snake)
-                        snake[0].reset_snake(self.__c, self.__gameTime, 's')
-                        self.__listfoods[indexS].delete(self.__c)
+                index = max(enumerate(d), key=lambda x: x[1])[0]
+                snake[0].change_direction(dir[index])
+                # if sum(d) == 1:
+                #     snake[0].change_direction(dir[d.index(1)])
+                # else:
+                #         indexS = self.__snakes.index(snake)
+                #         snake[0].reset_snake(self.__c, self.__gameTime, 'bad aan')
+                #         self.__listfoods[indexS].delete(self.__c)
 
     def get_active_snakes_count(self):
         count = 0
@@ -218,8 +220,9 @@ class Game(tk.Tk):
     def run(self, cut_off = 0.6, speed = 0.1):
         count_active_snakes = self.get_active_snakes_count()
         while count_active_snakes != 0:
-            self.update()
             self.move()
             self.change_direction(cut_off)
-            time.sleep(speed)
+            if self.__display:
+                time.sleep(speed)
+                self.__root.update()
             count_active_snakes = self.get_active_snakes_count()
