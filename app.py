@@ -1,11 +1,11 @@
 import Game
 import pyann
 
-SNAKE_COUNT = 5000
+SNAKE_COUNT = 1000
 CUT_OFF = 0.6
 WEIDTH = 800
 HEIGHT = 800
-SHAPE_NETURAL_NETWORK = (23, 8, 4)
+SHAPE_NETURAL_NETWORK = (23, 16, 8, 4)
 ACTIVATION_FUNCTION = 'Th'
 NumberOfGeneration = 1609
 
@@ -27,7 +27,7 @@ f.write(f'Generation    AvrFiness    AvrTime    AvrLen    BestGene')
 for i in range(NumberOfGeneration):
     game1.run()
     learning.set_population(game1.get_population(),'parents')
-    print(f'{i}  AvrFiness {round(1sum(learning.get_fitness)/len(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} avrLen {round(learning.get_avr_len(),4)}')
+    print(f'{i}  AvrFiness {round(sum(learning.get_fitness)/len(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} avrLen {round(learning.get_avr_len(),4)}')
     generation = learning.get_childs()
     f.write(f'{i}    {sum(learning.get_fitness) / len(learning.get_fitness)}    {learning.get_avr_time()}    {learning.get_avr_len()}    {learning.best_genes()}')
     game1.clear_snakes()
