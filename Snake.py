@@ -35,6 +35,7 @@ class Snake:
         self.vector = self.mapping["Right"]
         self.is_active = 'y'
         self.lifeTime = 0
+        self.countOfChangeDirection = 0
         self.__death = ('w', 's')  # w - collisium with wall. s - collisium with snake
 
     def move(self, seg_size, canvas):
@@ -66,6 +67,7 @@ class Snake:
                 (direction == 'Left' and self.direction != 'Right') or \
                 (direction == 'Right' and self.direction != 'Left'):
             self.direction = direction
+            self.countOfChangeDirection += 1
             self.vector = self.mapping[direction]
 
     def reset_snake(self, canvas, life_time, death):
@@ -76,4 +78,4 @@ class Snake:
         self.__death = death
 
     def get_snake_attributes(self):
-        return len(self.segments), self.lifeTime, self.__death
+        return len(self.segments), self.lifeTime, self.__death, self.countOfChangeDirection
