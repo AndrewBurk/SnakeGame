@@ -22,9 +22,9 @@ class Game():
         self.__wHeight = height
         self.__seg_size = 20
         self.__listfoods = []
-        self.__food_lives = 125 
+        self.__food_lives = 175
         self.__snakes = []
-        self.__gameTime = 0
+        self.__gameTime = 1
 
         # i = self.__seg_size
         # while i < width:
@@ -40,12 +40,14 @@ class Game():
         posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
         posy = self.__seg_size * random.randint(1, (self.__wHeight - self.__seg_size) / self.__seg_size)
         food = Segment(posx, posy, self.__seg_size, self.__c, "red")
-        self.__listfoods.insert(0,food)
+        # list of foods has time of food living(seconf par) and food
+        self.__listfoods.insert(0,[food, 0])
 
     def __resetfood__(self, n):
         posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
         posy = self.__seg_size * random.randint(1, (self.__wHeight - self.__seg_size) / self.__seg_size)
-        self.__listfoods[n].draw(posx, posy,
+        self.__listfoods[n][1] = 0
+        self.__listfoods[n][0].draw(posx, posy,
                                  posx + self.__seg_size, posy + self.__seg_size,
                                  self.__c)
 
@@ -53,13 +55,13 @@ class Game():
 
         for snake in filter(lambda x: x[0].is_active == 'y', self.__snakes):
             indexS = self.__snakes.index(snake)
-            food_coords = self.__listfoods[indexS].get_coords(self.__c)
+            food_coords = self.__listfoods[indexS][0].get_coords(self.__c)
             head_coords = snake[0].segments[-1].get_coords(self.__c)
             x1, y1, x2, y2 = head_coords
             # Check for collision with gamefield edges
             if x2 > self.__wWidth or x1 < 0 or y1 < 0 or y2 > self.__wHeight:
                 snake[0].reset_snake(self.__c, self.__gameTime, 'w')
-                self.__listfoods[indexS].delete(self.__c)
+                self.__listfoods[indexS][0].delete(self.__c)
             # Eating apples
             elif head_coords == food_coords:
                 snake[0].add_segment(self.__c, self.__seg_size)
@@ -70,14 +72,14 @@ class Game():
                 for index in range(len(snake[0].segments) - 1):
                     if head_coords == snake[0].segments[index].get_coords(self.__c):
                         snake[0].reset_snake(self.__c, self.__gameTime, 's')
-                        self.__listfoods[indexS].delete(self.__c)
+                        self.__listfoods[indexS][0].delete(self.__c)
 
     def clear_snakes(self):
         self.__snakes.clear()
         self.__listfoods.clear()
 
     def add_snakes(self, count, control='random'):
-        self.__gameTime = 0
+        self.__gameTime = 1
         for i in range(count):
             posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
             posy = self.__seg_size * random.randint(1, (self.__wHeight - self.__seg_size) / self.__seg_size)
@@ -98,11 +100,14 @@ class Game():
     def move(self):
         # counting all snakes; Need to loop only active
         for snake in filter(lambda x: x[0].is_active == 'y', self.__snakes):
+            indexS = self.__snakes.index(snake)
             snake[0].move(self.__seg_size, self.__c)
             snake[0].lifeTime = self.__gameTime
-            if snake[0].lifeTime % self.__food_lives == 0:
-                indexS = self.__snakes.index(snake)
-                self.__resetfood__(indexS)
+            self.__listfoods[indexS][1] += 1
+            if self.__listfoods[indexS][1] % self.__food_lives == 0:
+                # self.__resetfood__(indexS)
+                snake[0].reset_snake(self.__c, self.__gameTime - self.__food_lives, 'c')
+                self.__listfoods[indexS][0].delete(self.__c)
 
         self.__checkCollision__()
         self.__gameTime += 1
@@ -144,7 +149,7 @@ class Game():
         # coords of snake head and food
         xh1, yh1, = snake[0].segments[-1].get_coords(self.__c)[:2]
         indexS = self.__snakes.index(snake)
-        xf1, yf1 = self.__listfoods[indexS].get_coords(self.__c)[:2]
+        xf1, yf1 = self.__listfoods[indexS][0].get_coords(self.__c)[:2]
         up = []
         right = []
         down = []
@@ -216,14 +221,14 @@ class Game():
         #       f'cros B {result[14]} \n'
         #       f'cros C {result[15]} \n'
         #       f'cros food A {result[16]} \n'
-        #       f'cros food D {result[17]} \n'
-        #       f'cros food B {result[18]} \n'
-        #       f'cros food C {result[19]} \n'
-        #       f'cros food r {round(result[20],2)} \n'
-        #       f'cros food xh-xf {result[21]} \n'
-        #       f'cros food yh-yf {result[22]} \n'
-        #       f'xh {xh1/self.__wWidth} \n'
-        #       f'yh {yh1/self.__wWidth} \n')
+              # f'cros food D {result[17]} \n'
+              # f'cros food B {result[18]} \n'
+              # f'cros food C {result[19]} \n'
+              # f'cros food r {round(result[12],2)} \n'
+              # f'cros food xh-xf {result[13]} \n'
+              # f'cros food yh-yf {result[14]} \n'
+              # f'xh {xh1/self.__wWidth} \n'
+              # f'yh {yh1/self.__wWidth} \n')
         return result
 
     def game_ower(self):
@@ -235,12 +240,13 @@ class Game():
     def get_population(self):
         result = []
         for s in self.__snakes:
-            result.append((s[1].get_gene(), s[0].get_snake_attributes()))
+            result.append((s[1].get_chromosome(), s[0].get_snake_attributes()))
         return result
 
     def run(self, cut_off = 0.6, speed = 0.1):
         count_active_snakes = self.get_active_snakes_count()
         while count_active_snakes != 0:
+            # self.get_snake_position(self.__snakes[0])
             self.change_direction(cut_off)
             self.move()
             if self.__display:
