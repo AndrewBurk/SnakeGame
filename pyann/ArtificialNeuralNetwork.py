@@ -45,14 +45,14 @@ class ArtificialNeuralNetwork:
         else:
             while i < len(ann_shape) - 1:
                 # random matrix [-1:1)
-                self.__hiddenlayer.append( 2 * nm.random.random(tuple(ann_shape[i:i + 2])) - 1)
+                self.__hiddenlayer.append(2 * nm.random.random(tuple(ann_shape[i:i + 2])) - 1)
                 i += 1
                 if not biases and i <= len(ann_shape) - 1:
                     # zero vectors
-                    self.__annbiases.append( nm.zeros(tuple(ann_shape[i:i + 1]), dtype=int))
+                    self.__annbiases.append(2 * nm.zeros(tuple(ann_shape[i:i + 1]), dtype=int))
                 elif i <= len(ann_shape) - 1:
                     # random biases vector [-1:1)
-                    self.__annbiases.append(2 * nm.random.random(tuple(ann_shape[i:i + 1])) - 1)
+                    self.__annbiases.append( nm.random.random(tuple(ann_shape[i:i + 1])) - 1)
 
     def run(self, shape, a=None):
         # results below 'a' will be setted to 0

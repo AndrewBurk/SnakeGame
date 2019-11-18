@@ -22,7 +22,7 @@ class Game():
         self.__wHeight = height
         self.__seg_size = 20
         self.__listfoods = []
-        self.__food_lives = 175
+        self.__food_lives = 150
         self.__snakes = []
         self.__gameTime = 1
 
@@ -99,7 +99,7 @@ class Game():
 
     def move(self):
         # counting all snakes; Need to loop only active
-        for snake in filter(lambda x: x[0].is_active == 'y', self.__snakes):
+        for snake in list(filter(lambda x: x[0].is_active == 'y', self.__snakes)):
             indexS = self.__snakes.index(snake)
             snake[0].move(self.__seg_size, self.__c)
             snake[0].lifeTime = self.__gameTime
@@ -114,7 +114,7 @@ class Game():
 
     def change_direction(self, cut_off):
         dir = ['Down', 'Up', 'Left', 'Right']
-        for snake in filter(lambda x: x[0].is_active == 'y', self.__snakes):
+        for snake in list(filter(lambda x: x[0].is_active == 'y', self.__snakes)):
             if snake[1] == "RANDOM":
                 r = random.randint(0, 3)
                 snake[0].change_direction(dir[r])
