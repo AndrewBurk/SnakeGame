@@ -81,7 +81,7 @@ class GeneticAlgorithm:
             r1 = random.choice(self.__selectionVector)
             r2 = random.choice(self.__selectionVector)
             if r1 != r2:
-                kids = self.__crossover__(self.__Bin__(self.__population[r1][0]), self.__Bin__(self.__population[r2][0]))
+                kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 3)
                 childs.append(kids[0])
                 childs.append(kids[1])
                 i += 1
@@ -90,15 +90,15 @@ class GeneticAlgorithm:
 
         r1 = random.sample(range(len(self.__population)),int(len(self.__population)*self.__m))
         for i in r1:
-            childs.append(self.__mutation__(self.__Bin__(self.__population[i][0])))
+            childs.append(self.__mutation__(self.__population[i][0]))
 
-        return [self.__Dec__(x) for x in childs]
+        return childs
 
     def update_population(self, population):
         self.__population.clear()
         for p in population:
             # (chromosome, parameters, fitness
-            self.__population.append((p[0],p[1],self.__f(p[1])))
+            self.__population.append((p[0],p[1], self.__f(p[1])))
         # print(f'update {len(self.__population)}')
 
     def add_population(self, population):
@@ -111,17 +111,34 @@ class GeneticAlgorithm:
         return self.__population[:self.__population_size]
 
     # NEw^^^
-    def __crossover__(self, chromosome1, chromosome2):
-        if len(chromosome1) != len(chromosome2):
-            raise ValueError( f'Len of the chromosomes should have the same len. chromosome1 -  {len(chromosome1)} ; chromosome2 - {len(chromosome2)}.' )
-            # half of genome will be changed
-        r = random.randint(1,len(chromosome1)-1)
-        return chromosome1[:r] + chromosome2[r:], chromosome2[:r] + chromosome1[r:]
+    def __crossover__(self, ch1, ch2, n = None):
+        #ch1 = self.__Bin__(chromosome1)
+        #ch2 = self.__Bin__(chromosome2)
+        #if len(ch1) != len(ch2):
+        #    raise ValueError( f'Len of the chromosomes should have the same len. chromosome1 -  {len(ch1)} ; chromosome2 - {len(ch2)}.' )
+        #    # half of genome will be changed
+        #r = random.randint(1,len(ch1)-1)
+        #return self.__Dec__(ch1[:r] + ch2[r:]), self.__Dec__(ch2[:r] + ch1[r:])
+        # SBX method
 
-    def __mutation__(self, chromosome):
-        g = random.randint(0, len(chromosome) - 1)
-        s = '0' if chromosome[g] == '1' else '1'
-        return s + chromosome[1:] if g == 0 else chromosome[:g - 1] + s + s[g + 1:]
+        if len(ch1) != len(ch2):
+            raise ValueError( f'Len of the chromosomes should have the same len. chromosome1 -  {len(ch1)} ; chromosome2 - {len(ch2)}.')
+        child1 = []
+        child2 = []
+        for i in range(len(ch1)):
+            r = random.random()
+            beta = (2*r) ** (1 / (1 + n)) if r <=0.5 else (1/(2 * (1 - r))) ** (1 / (1 + n))
+            child1.append(0.5 * ((1 - beta) * ch1[i] + (1 + beta) * ch2[i]))
+            child2.append(0.5 * ((1 - beta) * ch2[i] + (1 + beta) * ch1[i]))
+        return child1, child2
+
+    def __mutation__(self, ch):
+        g = random.randint(0, len(ch) - 1)
+        #ch = self.__Bin__(ch)
+        #s = '0' if ch[g] == '1' else '1'
+        #return self.__Dec__(s+ ch[1:]) if g == 0 else self.__Dec__(ch[:g - 1] + s + s[g + 1:])
+        ch[g] += random.gauss(0, 1)
+        return
 
 
     @property

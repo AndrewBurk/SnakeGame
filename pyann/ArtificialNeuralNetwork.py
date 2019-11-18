@@ -2,19 +2,19 @@ import numpy as nm
 
 
 def sigma(x):
-    return 1 / (1 + nm.exp( x ))
+    return 1 / (1 + nm.exp(x))
 
 
 def th(x):
-    return nm.tanh( x )
+    return nm.tanh(x)
 
 
 def ReLU(x):
-    return (abs( x ) + x) / 2
+    return (abs(x) + x) / 2
 
 
 def CutOff(x, a):
-    return (x - x + 1) * (x > a) if a else x
+    return (x - x + 1) * (x > a) if a else int(x)
 
 
 ACTIVATION_FUNCTIONS = {'SIGMA': sigma, 'TH': th, 'RELU': ReLU}
@@ -64,7 +64,8 @@ class ArtificialNeuralNetwork:
 
         for i in range( len( self.__hiddenlayer ) - 1 ):
             result = self.__actfnc( nm.dot( result + self.__annbiases[i], self.__hiddenlayer[i + 1] ) )
-        return self.__actfnc(result + self.__annbiases[len(self.__annshape[1:-1])])
+        return CutOff(sigma(result + self.__annbiases[len(self.__annshape[1:-1])]), a).tolist()
+        #return self.__actfnc(result + self.__annbiases[len(self.__annshape[1:-1])])
         # return CutOff ( self.__actfnc( result + self.__annbiases[len( self.__annshape[1:-1] )] ), a ).tolist()
 
     def get_chromosome(self):

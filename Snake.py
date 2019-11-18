@@ -36,7 +36,7 @@ class Snake:
         self.is_active = 'y'
         self.lifeTime = 0
         self.countOfChangeDirection = 0
-        self.__death = ('w', 's')  # w - collisium with wall. s - collisium with snake
+        self.__death = ('w', 's', 'c')  # w - collisium with wall. s - collisium with snake
 
     def move(self, seg_size, canvas):
         """ Moves the snake with the specified vector"""

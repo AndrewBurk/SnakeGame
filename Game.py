@@ -26,15 +26,15 @@ class Game():
         self.__snakes = []
         self.__gameTime = 1
 
-        # i = self.__seg_size
-        # while i < width:
-        #     self.__c.create_line(i, 0, i, height, fill='white', width=1)
-        #     i += self.__seg_size
-        #
-        # i = self.__seg_size
-        # while i < height:
-        #     self.__c.create_line(0, i, width, i, fill='white', width=1)
-        #     i += self.__seg_size
+        #i = self.__seg_size
+        #while i < width:
+        #    self.__c.create_line(i, 0, i, height, fill='white', width=1)
+        #    i += self.__seg_size
+
+        #i = self.__seg_size
+        #while i < height:
+        #    self.__c.create_line(0, i, width, i, fill='white', width=1)
+        #    i += self.__seg_size
 
     def __addfood__(self):
         posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
@@ -106,7 +106,7 @@ class Game():
             self.__listfoods[indexS][1] += 1
             if self.__listfoods[indexS][1] % self.__food_lives == 0:
                 # self.__resetfood__(indexS)
-                snake[0].reset_snake(self.__c, self.__gameTime - self.__food_lives, 'c')
+                snake[0].reset_snake(self.__c, self.__gameTime, 'c')
                 self.__listfoods[indexS][0].delete(self.__c)
 
         self.__checkCollision__()
@@ -123,14 +123,15 @@ class Game():
                 snake[0].change_direction(dir[r])
             else:
                 d = snake[1].run(self.get_snake_position(snake), cut_off)
-                index = max(enumerate(d), key=lambda x: x[1])[0]
-                snake[0].change_direction(dir[index])
-                # if sum(d) == 1:
-                #     snake[0].change_direction(dir[d.index(1)])
-                # else:
-                #         indexS = self.__snakes.index(snake)
-                #         snake[0].reset_snake(self.__c, self.__gameTime, 'bad aan')
-                #         self.__listfoods[indexS].delete(self.__c)
+                #index = max(enumerate(d), key=lambda x: x[1])[0]
+                #snake[0].change_direction(dir[index])
+                if sum(d) == 1:
+                     snake[0].change_direction(dir[d.index(1)])
+                else:
+                    snake[0].change_direction((0,1,0,0))
+                    #indexS = self.__snakes.index(snake)
+                    #snake[0].reset_snake(self.__c, self.__gameTime, 'bad aan')
+                    #self.__listfoods[indexS][0].delete(self.__c)
 
     def get_active_snakes_count(self):
         count = 0
@@ -175,36 +176,34 @@ class Game():
         result.append(xh1 / self.__wWidth )  # direction left
         # ['Down', 'Up', 'Left', 'Right']
         # distance to the food;
-        result.append(
-            (yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
-        result.append(
-            (xf1 - xh1 - 1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
-        result.append(
-            (yf1 - yh1 -1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
-        result.append(
-            (xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
-        #
-        # # dist to wall by croos
-        # result.append(((self.__wWidth - xh1 - self.__seg_size) / self.__wWidth if xh1 + yh1 >= self.__wWidth else yh1 / self.__wHeight) * 2 )  # A
-        # result.append(((self.__wHeight - yh1 - 2 * self.__seg_size) / self.__wHeight if yh1 - xh1 + self.__wWidth >= self.__wHeight else (self.__wHeight - xh1 - 2*self.__seg_size) / self.__wHeight ) * 2)  # D
-        # result.append(((self.__wHeight - yh1 - self.__seg_size) / self.__wHeight if xh1 + yh1 >= self.__wHeight else xh1  / self.__wWidth) * 2)  # B
-        # result.append((yh1 / self.__wHeight if xh1 - yh1 >= 0 else xh1 / self.__wWidth) * 2)  # C
-        #
+        result.append((yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
+        result.append((xf1 - xh1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
+        result.append((yf1 - yh1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
+        result.append((xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
+
+         # dist to wall by croos
+        result.append(yh1 / self.__wWidth if yh1 <= xh1 else xh1 / self.__wHeight) #A
+        result.append(yh1 / self.__wWidth if yh1 <= -xh1 + self.__wHeight else (self.__wHeight - xh1 - self.__seg_size) / self.__wHeight) #B
+        result.append((self.__wHeight - xh1 - self.__seg_size) / self.__wHeight if yh1 <= xh1 else (self.__wHeight - yh1 - self.__seg_size) /self.__wHeight) #C
+        result.append( xh1 /self.__wHeight if yh1 <= -xh1 + self.__wHeight else (self.__wWidth - yh1 - self.__seg_size) /self.__wWidth) #D
+
         # # dist to food by cos
-        # result.append((xf1 - xh1)*2 / self.__wWidth if xf1 + yf1 - xh1 - yh1 == 0 and yf1 < yh1 and xf1 > xh1 else 0) #A
-        # result.append(
-        #     (yf1 - yh1) * 2 / self.__wHeight if yf1 - xf1 + xh1 - yh1 == 0 and yf1 > yh1 and xf1 > xh1 else 0)  # D
-        # result.append(
-        #     (yf1 - yh1) * 2 / self.__wHeight if yf1 + xf1 - xh1 - yh1 == 0 and yf1 > yh1 and xf1 < xh1 else 0)  # B
-        # result.append(
-        #     (yh1 - yf1) * 2 / self.__wHeight if yf1 - xf1 + xh1 - yh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0)  # c
+        result.append((xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
+        result.append((yh1 - yf1) /self.__wWidth if -yf1 -xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
+        result.append((xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
+        result.append((yf1 - yh1) /self.__wWidth if -yf1 -xf1 + yh1 + xh1== 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
 
-        r = (((yh1 - yf1) ** 2) / (self.__wHeight ** 2) + ((xh1 - xf1) ** 2) / (self.__wWidth ** 2)) ** 0.5
+        #r = ((yh1 - yf1 + self.__seg_size) ** 2 + (xh1 - xf1 + self.__seg_size) ** 2) ** 0.5 / (self.__wHeight ** 2 + self.__wHeight ** 2) ** 0.5
 
-        result.append(r)
-        result.append((xh1 - xf1) / self.__wWidth)  # direction left
-        result.append((yh1 - yf1) / self.__wHeight)  # directi rigth
-        # print(f'self up {result[0]} \n'
+        #result.append(r)
+        #result.append((xh1 - xf1) / self.__wWidth)  # direction left
+        #result.append((yh1 - yf1) / self.__wHeight)  # directi rigth
+
+        result.append(1 if snake[0].direction == 'Up' else 0)
+        result.append(1 if snake[0].direction == 'Right' else 0)
+        result.append(1 if snake[0].direction == 'Left' else 0)
+        result.append(1 if snake[0].direction == 'Down' else 0)
+        #print(f'self up {result[0]} \n'
         #       f'self rigth {result[1]} \n'
         #       f'self down {result[2]} \n'
         #       f'self left {result[3]} \n'
@@ -217,18 +216,14 @@ class Game():
         #       f'food down {result[10]} \n'
         #       f'food left {result[11]} \n'
         #       f'cros A {result[12]} \n'
-        #       f'cros D {result[13]} \n'
-        #       f'cros B {result[14]} \n'
-        #       f'cros C {result[15]} \n'
+        #       f'cros B {result[13]} \n'
+        #       f'cros D {result[15]} \n'
         #       f'cros food A {result[16]} \n'
-              # f'cros food D {result[17]} \n'
-              # f'cros food B {result[18]} \n'
-              # f'cros food C {result[19]} \n'
-              # f'cros food r {round(result[12],2)} \n'
-              # f'cros food xh-xf {result[13]} \n'
-              # f'cros food yh-yf {result[14]} \n'
-              # f'xh {xh1/self.__wWidth} \n'
-              # f'yh {yh1/self.__wWidth} \n')
+        #       f'cros food B {result[17]} \n'
+        #       f'cros food C {result[18]} \n'
+        #       f'cros food D {result[19]} \n'
+        #       f'xh {xh1/self.__wWidth} \n'
+        #       f'yh {yh1/self.__wWidth} \n')
         return result
 
     def game_ower(self):
@@ -246,7 +241,7 @@ class Game():
     def run(self, cut_off = 0.6, speed = 0.1):
         count_active_snakes = self.get_active_snakes_count()
         while count_active_snakes != 0:
-            # self.get_snake_position(self.__snakes[0])
+            #self.get_snake_position(self.__snakes[0])
             self.change_direction(cut_off)
             self.move()
             if self.__display:

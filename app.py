@@ -2,12 +2,12 @@ import Game
 import pyann
 
 SNAKE_COUNT = 1000
-CUT_OFF = 0.6
+CUT_OFF = 0.9
 WEIDTH = 400
 HEIGHT = 400
-SHAPE_NETURAL_NETWORK = (15, 16, 8, 4)
+SHAPE_NETURAL_NETWORK = (24, 16, 12, 4)
 
-ACTIVATION_FUNCTION = 'Th'
+ACTIVATION_FUNCTION = 'ReLU'
 NumberOfGeneration = 16000
 # (3, 12, 'w', 12)
 def fitness(par):
@@ -15,13 +15,16 @@ def fitness(par):
     t = par[1]
     d = par[2]
     c = par[3] # number of changed direction
-    return (l ** 2) * t * c  - (5 * t if (d == 'w' and d != 'c') else t * 0.5)
-    # return (10 * l ** 6 + c + t - (7 * t  if d == 'w' else t * 0.5) / (l - 2) ** 3) if (c >= 1 and d != 'c') else 0
+    #return (l ** 2) * t * c - (5 * t if (d == 'w' and d != 'c') else t * 0.5)
+    #return (10 * l ** 6 + c + t - (7 * t if d == 'w' else t * 0.5) / (l - 2) ** 3) if (c >= 1 and d != 'c') else 0
+    return t + (2 ** (l-2) + 500 * (l-2) ** 2.1) - ((l-2)**1.2 * (0.25 * t) ** 1.3)
 
 def sort(elem):
     return fitness(elem[1])
 
 game1 = Game.Game(WEIDTH, HEIGHT, False)
+
+
 generation = []
 generation2 =[]
 cm = []
@@ -32,8 +35,8 @@ while len(generation) < SNAKE_COUNT:
     game1.run()
     tmp = game1.get_population()
 
-    l = list(filter(lambda x: x[1][0] >= 4 and x[1][3] != 0,game1.get_population()))
-    if len(l)>=1:
+    l = list(filter(lambda x: x[1][0] >= 3 and x[1][3] != 0 and x[1][2] != 'bad aan', game1.get_population()))
+    if len(l) >= 1:
         generation.extend(l)
     i += 1
     print(f'{len(generation)}   {i}')
@@ -43,7 +46,7 @@ for g in generation[:SNAKE_COUNT]:
     game1.add_snakes(1, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, g))
 
 
-learning = pyann.GeneticAlgorithm(0.6, 0.05, fitness, SNAKE_COUNT)
+learning = pyann.GeneticAlgorithm(0.3, 0.08, fitness, SNAKE_COUNT)
 f = open("stat.txt",'w+')
 
 k = 0
@@ -68,7 +71,7 @@ while i <= (NumberOfGeneration):
     learning.update_population(temp_pop)
 
     print(f'{i} Gen{k} {len(generation2)} NumPop {learning.get_len_generation()} SumFiness {int(sum(learning.get_fitness))} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()}')
-    f.write(f'\n{i}  SumFiness {round(sum(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()}')
+    f.write(f'\n{i}  SumFitness {round(sum(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()}')
 
 
     cm = learning.crossover_mutation()
