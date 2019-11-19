@@ -53,14 +53,14 @@ class GeneticAlgorithm:
         # Am using Proportional selection to create a vector with candidates for selection
         fitness = [x[2] for x in self.__population]
         avr_fitness =  np.average(fitness)
-        std = np.std(fitness)
-        mod_fitness = [1 + (x - avr_fitness) / (2 * std) for x in fitness]
-        sum_mod_fitness = sum(mod_fitness)
+        # std = np.std(fitness)
+        # mod_fitness = [1 + (x - avr_fitness) / (2 * std) for x in fitness]
+        # sum_mod_fitness = sum(mod_fitness)
         self.__selectionVector.clear()
         tmp1 = []
         for i in range(len(self.__population)):
-            # dm = divmod((self.__f(self.__population[i][1])/ avr_fitness), 1)
-            dm = divmod(mod_fitness[i], 1)
+            dm = divmod((self.__f(self.__population[i][1])/ avr_fitness), 1)
+            # dm = divmod(mod_fitness[i], 1)
             tmp1.clear()
             tmp1.append(i)
             self.__selectionVector.extend(tmp1 * int(dm[0] + (1 if random.random() <= dm[1] else 0)))
@@ -79,14 +79,12 @@ class GeneticAlgorithm:
         i = 0
         while i < survivors:
             r1 = random.choice(self.__selectionVector)
-            r2 = random.choice(self.__selectionVector)
+            r2 = random.choice(range(self.__population_size - 1))
             if r1 != r2:
-                kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 3)
+                kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 3.5)
                 childs.append(kids[0])
                 childs.append(kids[1])
                 i += 1
-
-        self.__population.sort(key=take_third, reverse=True)
 
         r1 = random.sample(range(len(self.__population)),int(len(self.__population)*self.__m))
         for i in r1:
@@ -137,13 +135,17 @@ class GeneticAlgorithm:
         #ch = self.__Bin__(ch)
         #s = '0' if ch[g] == '1' else '1'
         #return self.__Dec__(s+ ch[1:]) if g == 0 else self.__Dec__(ch[:g - 1] + s + s[g + 1:])
-        ch[g] += random.gauss(0, 1)
-        return
+        ch[g] += random.gauss(0, 0.5)
+        return ch
 
 
     @property
     def get_fitness(self):
         return [x[2] for x in self.__population]
+
+    def get_best_chromosome(self):
+        index = [x[2] for x in self.__population].index(max(self.get_fitness))
+        return self.__population[index][0], self.__population[index][2]
 
     def get_avr_time(self):
         tmp = [x[1][1] for x in  self.__population]
@@ -155,7 +157,7 @@ class GeneticAlgorithm:
 
     def get_max_len(self):
         tmp = [x[1][0] for x in  self.__population]
-        return (max(tmp) , tmp.count(max(tmp))),(max(tmp) -1 , tmp.count(max(tmp)-1)),(max(tmp) - 2 , tmp.count(max(tmp)-2))
+        return (max(tmp), tmp.count(max(tmp))),(max(tmp) -1 , tmp.count(max(tmp)-1)),(max(tmp) - 2 , tmp.count(max(tmp)-2))
 
     def get_avr_len(self):
         tmp = [x[1][0] for x in self.__population]

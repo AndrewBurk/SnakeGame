@@ -1,13 +1,13 @@
 import Game
 import pyann
 
-SNAKE_COUNT = 1000
+SNAKE_COUNT = 500
 CUT_OFF = 0.9
-WEIDTH = 400
-HEIGHT = 400
-SHAPE_NETURAL_NETWORK = (24, 16, 12, 4)
+WEIDTH = 200
+HEIGHT = 200
+SHAPE_NETURAL_NETWORK = (28, 16, 8, 4)
 
-ACTIVATION_FUNCTION = 'ReLU'
+ACTIVATION_FUNCTION = 'Th'
 NumberOfGeneration = 16000
 # (3, 12, 'w', 12)
 def fitness(par):
@@ -16,37 +16,38 @@ def fitness(par):
     d = par[2]
     c = par[3] # number of changed direction
     #return (l ** 2) * t * c - (5 * t if (d == 'w' and d != 'c') else t * 0.5)
-    #return (10 * l ** 6 + c + t - (7 * t if d == 'w' else t * 0.5) / (l - 2) ** 3) if (c >= 1 and d != 'c') else 0
+    # return 10 * l ** 6 * c + t - (7 * t if d == 'w' else t * 0.5) / (l - 2) ** 3
     return t + (2 ** (l-2) + 500 * (l-2) ** 2.1) - ((l-2)**1.2 * (0.25 * t) ** 1.3)
 
 def sort(elem):
     return fitness(elem[1])
 
 game1 = Game.Game(WEIDTH, HEIGHT, False)
-
+# game1.add_snakes(1,'HUMAN')
+# game1.run()
 
 generation = []
 generation2 =[]
-cm = []
-i=0
-while len(generation) < SNAKE_COUNT:
-    game1.clear_snakes()
-    game1.add_snakes(700, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True))
-    game1.run()
-    tmp = game1.get_population()
-
-    l = list(filter(lambda x: x[1][0] >= 3 and x[1][3] != 0 and x[1][2] != 'bad aan', game1.get_population()))
-    if len(l) >= 1:
-        generation.extend(l)
-    i += 1
-    print(f'{len(generation)}   {i}')
-
-game1.clear_snakes()
-for g in generation[:SNAKE_COUNT]:
-    game1.add_snakes(1, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, g))
-
-
-learning = pyann.GeneticAlgorithm(0.3, 0.08, fitness, SNAKE_COUNT)
+# cm = []
+# i=0
+# while len(generation) < SNAKE_COUNT:
+#     game1.clear_snakes()
+#     game1.add_snakes(700, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True))
+#     game1.run()
+#     tmp = game1.get_population()
+#
+#     l = list(filter(lambda x: x[1][0] >= 3 and x[1][3] != 0, game1.get_population()))
+#     if len(l) >= 1:
+#         generation.extend(l)
+#     i += 1
+#     print(f'{len(generation)}   {i}')
+#
+# game1.clear_snakes()
+# for g in generation[:SNAKE_COUNT]:
+#     game1.add_snakes(1, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, g))
+#
+game1.add_snakes(500,(SHAPE_NETURAL_NETWORK,'Th',True))
+learning = pyann.GeneticAlgorithm(0.8, 0.05, fitness, SNAKE_COUNT)
 f = open("stat.txt",'w+')
 
 k = 0
@@ -71,7 +72,7 @@ while i <= (NumberOfGeneration):
     learning.update_population(temp_pop)
 
     print(f'{i} Gen{k} {len(generation2)} NumPop {learning.get_len_generation()} SumFiness {int(sum(learning.get_fitness))} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()}')
-    f.write(f'\n{i}  SumFitness {round(sum(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()}')
+    f.write(f'\n{i}  SumFitness {round(sum(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()} \n {learning.get_best_chromosome()}')
 
 
     cm = learning.crossover_mutation()

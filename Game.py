@@ -22,23 +22,23 @@ class Game():
         self.__wHeight = height
         self.__seg_size = 20
         self.__listfoods = []
-        self.__food_lives = 150
+        self.__food_lives = 60
         self.__snakes = []
         self.__gameTime = 1
 
-        #i = self.__seg_size
-        #while i < width:
+        # i = self.__seg_size
+        # while i < width:
         #    self.__c.create_line(i, 0, i, height, fill='white', width=1)
         #    i += self.__seg_size
-
-        #i = self.__seg_size
-        #while i < height:
+        #
+        # i = self.__seg_size
+        # while i < height:
         #    self.__c.create_line(0, i, width, i, fill='white', width=1)
         #    i += self.__seg_size
 
     def __addfood__(self):
-        posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
-        posy = self.__seg_size * random.randint(1, (self.__wHeight - self.__seg_size) / self.__seg_size)
+        posx = self.__seg_size * random.randint(0, (self.__wWidth - self.__seg_size) / self.__seg_size)
+        posy = self.__seg_size * random.randint(0, (self.__wHeight - self.__seg_size) / self.__seg_size)
         food = Segment(posx, posy, self.__seg_size, self.__c, "red")
         # list of foods has time of food living(seconf par) and food
         self.__listfoods.insert(0,[food, 0])
@@ -151,24 +151,35 @@ class Game():
         xh1, yh1, = snake[0].segments[-1].get_coords(self.__c)[:2]
         indexS = self.__snakes.index(snake)
         xf1, yf1 = self.__listfoods[indexS][0].get_coords(self.__c)[:2]
-        up = []
-        right = []
-        down = []
-        left = []
+        up, up_c, right, right_c, down, down_c, left, left_c = [], [], [], [], [], [], [], []
+
         for index in range(len(snake[0].segments) - 1):
             # segment coordinate
             xs1, ys1 = snake[0].segments[index].get_coords(self.__c)[:2]
-            up.append(
-                (yh1 - ys1) if xs1 == xh1 and ys1 < yh1 else 0)  # direction up
-            right.append((xs1 - xh1)if ys1 == yh1 and xs1 > xh1 else 0)  # direction right
-            down.append((ys1 - yh1) if xs1 == xh1 and ys1 > yh1 else 0)  # direction down
-            left.append((xh1 - xs1) if ys1 == yh1 and xs1 < xh1 else 0)  # direction left
+            if xs1 == xh1 and ys1 < yh1: up.append(yh1 - ys1)  # direction up
+            if ys1 == yh1 and xs1 > xh1: right.append(xs1 - xh1)  # direction right
+            if xs1 == xh1 and ys1 > yh1: down.append(ys1 - yh1)  # direction down
+            if ys1 == yh1 and xs1 < xh1: left.append(xh1 - xs1)  # direction left
+            # dis by cos to self
+            if xs1 - ys1 + yh1 - xh1 == 0 and ys1 < yh1 and xs1 < xh1: up_c.append((xh1 - xs1) / self.__wHeight)  # A
+            if -ys1 - xs1 + yh1 + xh1 == 0 and yh1 >= ys1 and xs1 >= xh1: right_c.append((yh1 - ys1) / self.__wWidth)  # B
+            if xs1 - ys1 + yh1 - xh1 == 0 and ys1 >= yh1 and xs1 >= xh1: down_c.append((xs1 - xh1) / self.__wHeight)  # C
+            if -ys1 - xs1 + yh1 + xh1 == 0 and yh1 < ys1 and xs1 < xh1: left_c.append((ys1 - yh1) / self.__wWidth)  # D
 
-        result.append(max(up) / (self.__wHeight))
-        result.append(max(right) / (self.__wWidth))
-        result.append(max(down) / (self.__wHeight))
-        result.append(max(left) / (self.__wWidth))
+        result.append(0 if len(up) == 0 else min(up) / self.__wHeight)
+        result.append(0 if len(right) == 0 else min(right) / self.__wWidth)
+        result.append(0 if len(down) == 0 else min(down) / self.__wHeight)
+        result.append(0 if len(left) == 0 else min(left) / self.__wWidth)
 
+        result.append(0 if len(up_c) == 0 else min(up_c))
+        result.append(0 if len(right_c) == 0 else min(right_c))
+        result.append(0 if len(down_c) == 0 else min(down_c))
+        result.append(0 if len(left_c) == 0 else min(left_c))
+
+        up.clear()
+        right.clear()
+        down.clear()
+        left.clear()
         # adding distance to the wall;
         result.append(yh1 / self.__wHeight )  # direction up
         result.append((self.__wWidth - xh1 - self.__seg_size ) / self.__wWidth)  # direction right
@@ -189,41 +200,47 @@ class Game():
 
         # # dist to food by cos
         result.append((xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
-        result.append((yh1 - yf1) /self.__wWidth if -yf1 -xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
+        result.append((yh1 - yf1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
         result.append((xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
-        result.append((yf1 - yh1) /self.__wWidth if -yf1 -xf1 + yh1 + xh1== 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
+        result.append((yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
 
-        #r = ((yh1 - yf1 + self.__seg_size) ** 2 + (xh1 - xf1 + self.__seg_size) ** 2) ** 0.5 / (self.__wHeight ** 2 + self.__wHeight ** 2) ** 0.5
-
-        #result.append(r)
-        #result.append((xh1 - xf1) / self.__wWidth)  # direction left
-        #result.append((yh1 - yf1) / self.__wHeight)  # directi rigth
 
         result.append(1 if snake[0].direction == 'Up' else 0)
         result.append(1 if snake[0].direction == 'Right' else 0)
         result.append(1 if snake[0].direction == 'Left' else 0)
         result.append(1 if snake[0].direction == 'Down' else 0)
-        #print(f'self up {result[0]} \n'
+        # print(f'self up {result[0]} \n'
         #       f'self rigth {result[1]} \n'
         #       f'self down {result[2]} \n'
         #       f'self left {result[3]} \n'
-        #       f'wall up {result[4]} \n'
-        #       f'wall rigth {result[5]} \n'
-        #       f'wall down {result[6]} \n'
-        #       f'wall left {result[7]} \n'
-        #       f'food up {result[8]} \n'
-        #       f'food rigth {result[9]} \n'
-        #       f'food down {result[10]} \n'
-        #       f'food left {result[11]} \n'
-        #       f'cros A {result[12]} \n'
-        #       f'cros B {result[13]} \n'
-        #       f'cros D {result[15]} \n'
-        #       f'cros food A {result[16]} \n'
-        #       f'cros food B {result[17]} \n'
-        #       f'cros food C {result[18]} \n'
-        #       f'cros food D {result[19]} \n'
+        #       f'cros self A {result[4]} \n'
+        #       f'cros self B {result[5]} \n'
+        #       f'cros self C {result[6]} \n'
+        #       f'cros self D {result[7]} \n'
+        #       f'wall up {result[8]} \n'
+        #       f'wall rigth {result[9]} \n'
+        #       f'wall down {result[10]} \n'
+        #       f'wall left {result[11]} \n'
+        #       f'food up {result[12]} \n'
+        #       f'food rigth {result[13]} \n'
+        #       f'food down {result[14]} \n'
+        #       f'food left {result[15]} \n'
+        #       f'cros A {result[16]} \n'
+        #       f'cros B {result[17]} \n'
+        #       f'cros C {result[18]} \n'
+        #       f'cros D {result[19]} \n'
+        #       f'cros food A {result[20]} \n'
+        #       f'cros food B {result[21]} \n'
+        #       f'cros food C {result[22]} \n'
+        #       f'cros food D {result[23]} \n'
+        #       f'head up {result[24]} \n'
+        #       f'head right {result[25]} \n'
+        #       f'head left {result[26]} \n'
+        #       f'head down {result[27]} \n'
         #       f'xh {xh1/self.__wWidth} \n'
-        #       f'yh {yh1/self.__wWidth} \n')
+        #       f'yh {yh1/self.__wWidth} \n'
+        #       f'xf {xf1/self.__wWidth} \n'
+        #       f'yf {yf1 / self.__wWidth} \n')
         return result
 
     def game_ower(self):
@@ -241,7 +258,7 @@ class Game():
     def run(self, cut_off = 0.6, speed = 0.1):
         count_active_snakes = self.get_active_snakes_count()
         while count_active_snakes != 0:
-            #self.get_snake_position(self.__snakes[0])
+            # self.get_snake_position(self.__snakes[0])
             self.change_direction(cut_off)
             self.move()
             if self.__display:
