@@ -113,7 +113,7 @@ class Game():
         self.__gameTime += 1
 
     def change_direction(self, cut_off):
-        dir = ['Down', 'Up', 'Left', 'Right']
+        dir = ['Continue', 'Left', 'Right']
         for snake in list(filter(lambda x: x[0].is_active == 'y', self.__snakes)):
             if snake[1] == "RANDOM":
                 r = random.randint(0, 3)
@@ -127,8 +127,8 @@ class Game():
                 #snake[0].change_direction(dir[index])
                 if sum(d) == 1:
                      snake[0].change_direction(dir[d.index(1)])
-                else:
-                    snake[0].change_direction((0,1,0,0))
+                # else:
+                    # snake[0].change_direction((0,1,0,0))
                     #indexS = self.__snakes.index(snake)
                     #snake[0].reset_snake(self.__c, self.__gameTime, 'bad aan')
                     #self.__listfoods[indexS][0].delete(self.__c)
@@ -176,10 +176,6 @@ class Game():
         result.append(0 if len(down_c) == 0 else min(down_c))
         result.append(0 if len(left_c) == 0 else min(left_c))
 
-        up.clear()
-        right.clear()
-        down.clear()
-        left.clear()
         # adding distance to the wall;
         result.append(yh1 / self.__wHeight )  # direction up
         result.append((self.__wWidth - xh1 - self.__seg_size ) / self.__wWidth)  # direction right
@@ -187,10 +183,10 @@ class Game():
         result.append(xh1 / self.__wWidth )  # direction left
         # ['Down', 'Up', 'Left', 'Right']
         # distance to the food;
-        result.append((yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
-        result.append((xf1 - xh1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
-        result.append((yf1 - yh1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
-        result.append((xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
+        result.append(1 + 0*(yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
+        result.append(1 + 0*(xf1 - xh1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
+        result.append(1 + 0*(yf1 - yh1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
+        result.append(1 + 0*(xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
 
          # dist to wall by croos
         result.append(yh1 / self.__wWidth if yh1 <= xh1 else xh1 / self.__wHeight) #A
@@ -199,10 +195,10 @@ class Game():
         result.append( xh1 /self.__wHeight if yh1 <= -xh1 + self.__wHeight else (self.__wWidth - yh1 - self.__seg_size) /self.__wWidth) #D
 
         # # dist to food by cos
-        result.append((xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
-        result.append((yh1 - yf1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
-        result.append((xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
-        result.append((yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
+        result.append(1 + 0*(xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
+        result.append(1 + 0*(yh1 - yf1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
+        result.append(1 + 0*(xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
+        result.append(1 + 0*(yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
 
 
         result.append(1 if snake[0].direction == 'Up' else 0)

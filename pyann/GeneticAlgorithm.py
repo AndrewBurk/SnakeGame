@@ -58,43 +58,37 @@ class GeneticAlgorithm:
         # sum_mod_fitness = sum(mod_fitness)
         self.__selectionVector.clear()
         tmp1 = []
-        for i in range(len(self.__population)):
-            dm = divmod((self.__f(self.__population[i][1])/ avr_fitness), 1)
-            # dm = divmod(mod_fitness[i], 1)
-            tmp1.clear()
-            tmp1.append(i)
-            self.__selectionVector.extend(tmp1 * int(dm[0] + (1 if random.random() <= dm[1] else 0)))
-
-    def get_len_generation(self):
-        return len(self.__population)
-
-    def get_generation(self):
-        return len(self.__population)
+        while len(self.__selectionVector) < int(self.__s * self.__population_size):
+            for i in range(len(self.__population)):
+                dm = divmod((self.__population[i][2]/ sum(fitness)), 1)
+                # dm = divmod(mod_fitness[i], 1)
+                tmp1.clear()
+                tmp1.append(i)
+                self.__selectionVector.extend(tmp1 * int(dm[0] + (1 if random.random() <= dm[1] else 0)))
 
     # New code
     def crossover_mutation(self):
-        survivors = int(self.__s * self.__population_size)
         childs = []
         self.__set_selection_vector__()
         i = 0
-        while i < survivors:
-            r1 = random.choice(self.__selectionVector)
-            r2 = random.choice(range(self.__population_size - 1))
+        for r1 in self.__selectionVector:
+            #r1 = random.choice(self.__selectionVector)
+            r2 = random.choice(range(self.__population_size))
             if r1 != r2:
                 if i % 2 == 0:
-                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], "sbx", 3.5)
+                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'sbx', 2.5)
                     childs.append(kids[0])
                     childs.append(kids[1])
                     i += 1
                 else:
-                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'bin')
+                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'Lbin')
                     childs.append(kids[0])
                     childs.append(kids[1])
                     i += 1
 
-        r1 = random.sample(range(len(childs)),int(len(childs)*self.__m))
+        r1 = random.sample(self.__selectionVector,int(len(childs) * self.__m))
         for i in r1:
-            childs.append(self.__mutation__(childs[i]))
+            childs.append(self.__mutation__(self.__population[i][0]))
 
         return childs
 
@@ -124,6 +118,19 @@ class GeneticAlgorithm:
             # half of genome will be changed
             r = random.randint(1,len(ch1)-1)
             return self.__Dec__(ch1_b[:r] + ch2_b[r:]), self.__Dec__(ch2_b[:r] + ch1_b[r:])
+        elif type.upper() == 'LBIN':
+            ch1_b = self.__Bin__(ch1)
+            ch2_b = self.__Bin__(ch2)
+            kid1, kid2 = ch1_b , ch2_b
+            for i in range(len(ch1_b) - 1):
+                if i % 2 == 0:
+                    if i == 0:
+                        kid2 = ch1_b[i] + kid2[i+1:]
+                    else:
+                        kid2 = kid2[:i] + ch1_b[i] + kid2[i+1:]
+                else:
+                    kid1 = kid1[:i] + ch2_b[i] + kid1[i+1:]
+            return self.__Dec__(kid1), self.__Dec__(kid2)
         elif type.upper() == 'SBX':
             child1 = []
             child2 = []
@@ -139,9 +146,14 @@ class GeneticAlgorithm:
         #ch = self.__Bin__(ch)
         #s = '0' if ch[g] == '1' else '1'
         #return self.__Dec__(s+ ch[1:]) if g == 0 else self.__Dec__(ch[:g - 1] + s + s[g + 1:])
-        ch[g] += random.gauss(0, 0.5)
+        ch[g] += random.gauss(0, 0.25)
         return ch
 
+    def get_len_generation(self):
+        return len(self.__population)
+
+    def get_generation(self):
+        return len(self.__population)
 
     @property
     def get_fitness(self):

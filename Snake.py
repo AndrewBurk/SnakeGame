@@ -28,11 +28,15 @@ class Snake:
     def __init__(self, segments):
         self.segments = segments
         # possible moves
-        self.mapping = {"Down": (0, 1), "Right": (1, 0),
-                        "Up": (0, -1), "Left": (-1, 0)}
+        # self.mapping = {"Down": (0, 1), "Right": (1, 0),
+        #                 "Up": (0, -1), "Left": (-1, 0)}
+
+        self.mapping = {'H_Right': (0, 1), 'V_Right': (1, 0),
+                        'H_Left': (0, -1), 'V_Left': (-1, 0)}
+        # direction could be Horizontal(H) or Vertical(V)
         # initial movement direction
-        self.direction = "Right"
-        self.vector = self.mapping["Right"]
+        self.direction = 'Horizontal'
+        self.vector = self.mapping["V_Right"]
         self.is_active = 'y'
         self.lifeTime = 0
         self.countOfChangeDirection = 0
@@ -62,13 +66,14 @@ class Snake:
         #     self.vector = self.mapping[event.keysym]
         # dir = ['Down', 'Up', 'Left', 'Right']
         # r = random.randint(0, 3)
-        if (direction == 'Down' and self.direction != 'Up') or \
-                (direction == 'Up' and self.direction != 'Down') or \
-                (direction == 'Left' and self.direction != 'Right') or \
-                (direction == 'Right' and self.direction != 'Left'):
-            self.direction = direction
+        if (direction == 'Left' or direction == 'Right') and self.direction == 'Vertical':
+            self.vector = self.mapping['V_' + direction]
+            self.direction = 'Horizontal'
             self.countOfChangeDirection += 1
-            self.vector = self.mapping[direction]
+        elif (direction == 'Left' or direction == 'Right') and self.direction == 'Horizontal':
+            self.vector = self.mapping['H_' + direction]
+            self.direction = 'Vertical'
+            self.countOfChangeDirection += 1
 
     def reset_snake(self, canvas, life_time, death):
         for segment in self.segments:

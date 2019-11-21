@@ -66,7 +66,6 @@ class ArtificialNeuralNetwork:
 
         for i in range( len( self.__hiddenlayer ) - 1 ):
             result = self.__actfnc(nm.dot(result + self.__annbias[i], self.__hiddenlayer[i + 1]))
-
         return CutOff(sigma(result + self.__annbias[len(self.__annshape[1:-1])]), a).tolist()
         #return self.__actfnc(result + self.__annbiases[len(self.__annshape[1:-1])])
         # return CutOff ( self.__actfnc( result + self.__annbiases[len( self.__annshape[1:-1] )] ), a ).tolist()
