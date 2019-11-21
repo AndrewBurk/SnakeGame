@@ -9,7 +9,7 @@ def th(x):
 
 
 def ReLU(x):
-    return [a if a > 0 else 0.001 * a for a in x]
+    return [max(a, 0.01 * a) for a in x]
     #return (abs(x) + x) / 2
 
 

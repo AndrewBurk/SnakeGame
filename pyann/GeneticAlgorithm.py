@@ -60,7 +60,7 @@ class GeneticAlgorithm:
         tmp1 = []
         while len(self.__selectionVector) < int(self.__s * self.__population_size):
             for i in range(len(self.__population)):
-                dm = divmod((self.__population[i][2]/ sum(fitness)), 1)
+                dm = divmod((self.__population[i][2]/sum(fitness)) * 100, 1)
                 # dm = divmod(mod_fitness[i], 1)
                 tmp1.clear()
                 tmp1.append(i)
@@ -168,12 +168,14 @@ class GeneticAlgorithm:
         return sum(tmp)/len(tmp)
 
     def get_max_time(self):
-        tmp = [x[1][1] for x in  self.__population]
-        return max(tmp)
+        tmp = [x[1][1] for x in self.__population]
+        p = self.__population
+        return max(tmp), round(p[tmp.index(max(tmp))][2])
 
     def get_max_len(self):
-        tmp = [x[1][0] for x in  self.__population]
-        return (max(tmp), tmp.count(max(tmp))),(max(tmp) -1 , tmp.count(max(tmp)-1)),(max(tmp) - 2 , tmp.count(max(tmp)-2))
+        lens = [x[1][0] for x in self.__population]
+        p = self.__population
+        return (max(lens), lens.count(max(lens))),(max(lens) -1, lens.count(max(lens)-1)),(max(lens) - 2, lens.count(max(lens)-2))
 
     def get_avr_len(self):
         tmp = [x[1][0] for x in self.__population]

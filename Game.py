@@ -201,10 +201,10 @@ class Game():
         result.append(1 + 0*(yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
 
 
-        result.append(1 if snake[0].direction == 'Up' else 0)
-        result.append(1 if snake[0].direction == 'Right' else 0)
-        result.append(1 if snake[0].direction == 'Left' else 0)
-        result.append(1 if snake[0].direction == 'Down' else 0)
+        #result.append(1 if snake[0].direction == 'Up' else 0)
+        #result.append(1 if snake[0].direction == 'Right' else 0)
+        #result.append(1 if snake[0].direction == 'Left' else 0)
+        #result.append(1 if snake[0].direction == 'Down' else 0)
         # print(f'self up {result[0]} \n'
         #       f'self rigth {result[1]} \n'
         #       f'self down {result[2]} \n'
