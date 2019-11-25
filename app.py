@@ -10,10 +10,12 @@ SHAPE_NETURAL_NETWORK = (24, 16, 12, 3)
 ACTIVATION_FUNCTION = 'RELu'
 NumberOfGeneration = 160000
 # (3, 12, 'w', 12)
+
 def fitness(par):
     l = par[0]
     t = par[1]
     d = par[2]
+
     c = par[3] # number of changed direction
     #return (l ** 2) * t * c - (5 * t if (d == 'w' and d != 'c') else t * 0.5)
     #return 10 * l ** 6 + t - (t ** 2) / (l - 2) ** 3
@@ -59,17 +61,6 @@ while i <= (NumberOfGeneration):
 
     temp_pop = game1.get_population()
 
-    # if k != 1:
-    #     l = list(filter(lambda x: x[1][0] >= 5 and x[1][3] != 0,temp_pop))
-    #     if len(l)>=1:
-    #         generation2.extend(l)
-    #
-    # if len(generation2) >= SNAKE_COUNT and k != 1:
-    #     learning.update_population(generation2)
-    #     i = 0
-    #     k += 1
-    #     generation2 =[]
-    # else:
     learning.update_population(temp_pop)
 
     print(f'{i} Gen{k}({len(generation2)})  NumPop {learning.get_len_generation()} SumFiness {int(sum(learning.get_fitness))} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),3)} maxLen {learning.get_max_len()}')
@@ -93,45 +84,3 @@ while i <= (NumberOfGeneration):
     for p in learning.next_population():
         game1.add_snakes(1, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, p))
     i += 1
-
-
-
-
-
-
-
-    # l = list(filter(lambda x: x[1][0] >= k and x[1][3] > 0,game1.get_population()))
-    # if len(l)>=1:
-    #     generatinon2.extend(l)
-    #     gen = open(f'generationTEST.csv', 'w+')
-    #     gen.write(f'{[x[1] for x in game1.get_population()]}')
-    #     gen.close()
-    #
-    # if len(generatinon2) >= SNAKE_COUNT:
-    #     learning.add_population(generatinon2)
-    #     i = 0
-    #     k += 1
-    #     gen = open(f'generation{k}.csv', 'w+')
-    #     gen.write(f'{[x[0] for x in generatinon2]} {[x[1] for x in generatinon2]}')
-    #     gen.close()
-    #     generatinon2 =[]
-    # else:
-    #     learning.add_population(game1.get_population())
-    #
-    # print(f'{i} Gen{k} {len(generatinon2)} NumPop {len(learning.get_generation())} SumFiness {int(sum(learning.get_fitness))} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()}  {learning.best_chromosome()[1]}')
-    # f.write(f'\n{i}  SumFiness {round(sum(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()}    \n {learning.best_chromosome()}')
-    #
-    # kids = learning.get_childs()
-    # # print(f'{i} NumOfKids {len(kids)}' )
-    # game1.clear_snakes()
-    # for g in kids:
-    #     game1.add_snakes(1,(SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, g))
-    # game1.run()
-    #
-    # generation = []
-    # learning.add_population(game1.get_population())
-    # game1.clear_snakes()
-    #
-    # generation = learning.get_generation()
-    # for g in generation:
-    #     game1.add_snakes(1,(SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, g))

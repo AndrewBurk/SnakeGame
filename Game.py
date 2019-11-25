@@ -82,6 +82,7 @@ class Game():
     def add_snakes(self, count, control='random'):
         self.__gameTime = 1
         for i in range(count):
+
             posx, posy = 44444, 44444
             while posx + 4 * self.__seg_size >= self.__wWidth or posy + 4 * self.__seg_size >= self.__wHeight:
                 posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
@@ -95,7 +96,6 @@ class Game():
                 snake = Snake([Segment(posx + self.__seg_size, posy + self.__seg_size, self.__seg_size, self.__c),
                         Segment(posx + self.__seg_size, posy + self.__seg_size * 2, self.__seg_size, self.__c),
                         Segment(posx + self.__seg_size, posy + self.__seg_size * 3, self.__seg_size, self.__c, "gray")], d)
-
             if control == 'RANDOM':
                 self.__snakes.insert(0, [snake, 'RANDOM'])
             elif type(control) == tuple:
@@ -178,7 +178,6 @@ class Game():
         result.append(0 if len(right_c) == 0 else min(right_c))
         result.append(0 if len(down_c) == 0 else min(down_c))
         result.append(0 if len(left_c) == 0 else min(left_c))
-
         # adding distance to the wall;
         result.append(yh1 / self.__wHeight )  # direction up
         result.append((self.__wWidth - xh1 - self.__seg_size ) / self.__wWidth)  # direction right
