@@ -75,18 +75,18 @@ class GeneticAlgorithm:
             #r1 = random.choice(self.__selectionVector)
             r2 = random.choice(range(self.__population_size))
             if r1 != r2:
-                if i % 3 == 0:
-                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'sbx', 2.5)
+                if i % 2 == 0:
+                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'sbx', 3)
                     childs.append(kids[0])
                     childs.append(kids[1])
-                elif i % 3 == 2:
+                elif i % 2 == 1:
                     kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'Lbin')
                     childs.append(kids[0])
                     childs.append(kids[1])
-                else:
-                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'bin')
-                    childs.append(kids[0])
-                    childs.append(kids[1])
+                #else:
+                #    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'bin')
+                #    childs.append(kids[0])
+                #    childs.append(kids[1])
             i += 1
         r1 = random.sample(self.__selectionVector,int(len(childs) * self.__m))
         for i in r1:
@@ -138,7 +138,7 @@ class GeneticAlgorithm:
             child2 = []
             for i in range(len(ch1)):
                 r = random.random()
-                beta = (2*r) ** (1 / (1 + n)) if r <=0.5 else (1/(2 * (1 - r))) ** (1 / (1 + n))
+                beta = (2*r) ** (1 / (1 + n)) if r <= 0.5 else (1/(2 * (1 - r))) ** (1 / (1 + n))
                 child1.append(0.5 * ((1 - beta) * ch1[i] + (1 + beta) * ch2[i]))
                 child2.append(0.5 * ((1 - beta) * ch2[i] + (1 + beta) * ch1[i]))
             return child1, child2

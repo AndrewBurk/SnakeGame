@@ -1,8 +1,8 @@
 import Game
 import pyann
 
-SNAKE_COUNT = 250
-CUT_OFF = 0.5
+SNAKE_COUNT = 500
+CUT_OFF = 0.46
 WEIDTH = 400
 HEIGHT = 400
 SHAPE_NETURAL_NETWORK = (24, 16, 12, 3)
@@ -21,14 +21,8 @@ def fitness(par):
     #return 10 * l ** 6 + t - (t ** 2) / (l - 2) ** 3
     return t + (2 ** (l-2) + 500 * (l-2) ** 2.1) - ((l-2)**1.2 * (0.25 * t) ** 1.3)
 
-def sort(elem):
-    return fitness(elem[1])
-
-
-
-
 game1 = Game.Game(WEIDTH, HEIGHT, False)
-#game1.add_snakes(SNAKE_COUNT,(SHAPE_NETURAL_NETWORK,ACTIVATION_FUNCTION, True))
+#game1.add_snakes(2000,(SHAPE_NETURAL_NETWORK,ACTIVATION_FUNCTION, True))
 #game1.add_snakes(1,'HUMAN')
 #game1.run(CUT_OFF)
 
@@ -52,7 +46,7 @@ game1.clear_snakes()
 for g in generation[:SNAKE_COUNT]:
      game1.add_snakes(1, (SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, g))
 
-learning = pyann.GeneticAlgorithm(0.3, 0.04, fitness, SNAKE_COUNT)
+learning = pyann.GeneticAlgorithm(0.7, 0.04, fitness, SNAKE_COUNT)
 f = open("stat.txt",'w+')
 k = 0
 i = 0

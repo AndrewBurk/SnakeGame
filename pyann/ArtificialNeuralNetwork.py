@@ -1,17 +1,18 @@
-import numpy as nm
+import numpy as np
 
 
 def sigma(x):
-    return 1 / (1 + nm.exp(x))
+    return 1 / (1 + np.exp(x))
 
 def th(x):
-    return nm.tanh(x)
+    return np.tanh(x)
 
+def softmax(x):
+    return np.exp(x) / np.sum(np.exp(x))
 
 def ReLU(x):
     return [max(a, 0.01 * a) for a in x]
     #return (abs(x) + x) / 2
-
 
 def CutOff(x, a):
     if a is not None:
@@ -47,14 +48,14 @@ class ArtificialNeuralNetwork:
         else:
             while i < len(ann_shape) - 1:
                 # random matrix [-1:1)
-                self.__hiddenlayer.append(2 * nm.random.random(tuple(ann_shape[i:i + 2])) - 1)
+                self.__hiddenlayer.append(2 * np.random.random(tuple(ann_shape[i:i + 2])) - 1)
                 i += 1
                 if not bias and i <= len(ann_shape) - 1:
                     # zero vectors
-                    self.__annbias.append(nm.zeros(tuple(ann_shape[i:i + 1]), dtype=int))
+                    self.__annbias.append(np.zeros(tuple(ann_shape[i:i + 1]), dtype=int))
                 elif i < len(ann_shape) - 1:
                     # random biases vector [-1:1)
-                    self.__annbias.append(2 * nm.random.random(tuple(ann_shape[i:i + 1])) - 1)
+                    self.__annbias.append(2 * np.random.random(tuple(ann_shape[i:i + 1])) - 1)
 
     def run(self, input_data, a = None):
         # results below 'a' will be set to 0
@@ -63,8 +64,8 @@ class ArtificialNeuralNetwork:
                 f'Size of input should be {self.__annshape[0]}, you are trying to pass Len - {len(input_data)}; {input_data}' )
         result = input_data
         for i in range(len(self.__hiddenlayer) - 1):
-            result = self.__actfnc(nm.dot(result, self.__hiddenlayer[i]) + self.__annbias[i])
-        return CutOff(sigma(nm.dot(result, self.__hiddenlayer[-1])), a).tolist()
+            result = self.__actfnc(np.dot(result, self.__hiddenlayer[i]) + self.__annbias[i])
+        return CutOff(softmax(np.dot(result, self.__hiddenlayer[-1])), a).tolist()
         #return self.__actfnc(result + self.__annbiases[len(self.__annshape[1:-1])])
         # return CutOff ( self.__actfnc( result + self.__annbiases[len( self.__annshape[1:-1] )] ), a ).tolist()
 
@@ -72,13 +73,13 @@ class ArtificialNeuralNetwork:
         result = self.__hiddenlayer[0].ravel()
         i = 1
         while i < len( self.__hiddenlayer ):
-            result = nm.concatenate( (result, self.__hiddenlayer[i].ravel()) )
+            result = np.concatenate((result, self.__hiddenlayer[i].ravel()))
             i += 1
 
-        result = nm.concatenate((result, self.__annbias[0].ravel()))
+        result = np.concatenate((result, self.__annbias[0].ravel()))
         i = 1
         while i < len(self.__annbias):
-            result = nm.concatenate((result, self.__annbias[i].ravel()))
+            result = np.concatenate((result, self.__annbias[i].ravel()))
             i += 1
         return result
 
@@ -88,7 +89,7 @@ class ArtificialNeuralNetwork:
         # if self.__annshape == chromosome[0]: need to add check of compatibility of genes to ANN
         l = 0
         if type(chromosome) == list:
-            ch = nm.asarray(chromosome)
+            ch = np.asarray(chromosome)
 
         for i in range(len(self.__annshape) - 1):
             m = self.__annshape[i]
