@@ -1,3 +1,5 @@
+import random
+
 class Segment(object):
     """ Single snake segment """
 
@@ -25,7 +27,7 @@ class Segment(object):
 class Snake:
     """ Simple Snake class """
 
-    def __init__(self, segments):
+    def __init__(self, segments, dir):
         self.segments = segments
         # possible moves
         # self.mapping = {"Down": (0, 1), "Right": (1, 0),
@@ -35,8 +37,9 @@ class Snake:
                         'H_Left': (0, -1), 'V_Left': (-1, 0)}
         # direction could be Horizontal(H) or Vertical(V)
         # initial movement direction
-        self.direction = 'Horizontal'
-        self.vector = self.mapping["V_Right"]
+        # d = random.choice(['Horizontal', 'Vertical'])
+        self.direction = dir
+        self.vector = self.mapping[dir[0].upper() + '_Right']
         self.is_active = 'y'
         self.lifeTime = 0
         self.countOfChangeDirection = 0
@@ -48,10 +51,8 @@ class Snake:
             x1, y1, x2, y2 = self.segments[index + 1].get_coords(canvas)
             self.segments[index].draw(x1, y1, x2, y2, canvas)
 
-        x1, y1, x2, y2 = self.segments[-2].get_coords(canvas)
-        self.segments[-1].draw(
-                x1 + self.vector[0] * seg_size, y1 + self.vector[1] * seg_size,
-                x2 + self.vector[0] * seg_size, y2 + self.vector[1] * seg_size, canvas)
+        x1, y1, x2, y2 = self.segments[-1].get_coords(canvas)
+        self.segments[-1].draw(x1 + self.vector[0] * seg_size, y1 + self.vector[1] * seg_size, x2 + self.vector[0] * seg_size, y2 + self.vector[1] * seg_size, canvas)
 
     def add_segment(self, canvas, seg_size):
         """ Adds segment to the snake """
@@ -66,12 +67,12 @@ class Snake:
         #     self.vector = self.mapping[event.keysym]
         # dir = ['Down', 'Up', 'Left', 'Right']
         # r = random.randint(0, 3)
-        if (direction == 'Left' or direction == 'Right') and self.direction == 'Vertical':
-            self.vector = self.mapping['V_' + direction]
+        if self.direction == 'Vertical' and direction != 'Continue':
+            self.vector = self.mapping['H_' + direction]
             self.direction = 'Horizontal'
             self.countOfChangeDirection += 1
-        elif (direction == 'Left' or direction == 'Right') and self.direction == 'Horizontal':
-            self.vector = self.mapping['H_' + direction]
+        elif self.direction == 'Horizontal' and direction != 'Continue':
+            self.vector = self.mapping['V_' + direction]
             self.direction = 'Vertical'
             self.countOfChangeDirection += 1
 

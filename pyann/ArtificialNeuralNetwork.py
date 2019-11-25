@@ -52,21 +52,19 @@ class ArtificialNeuralNetwork:
                 if not bias and i <= len(ann_shape) - 1:
                     # zero vectors
                     self.__annbias.append(nm.zeros(tuple(ann_shape[i:i + 1]), dtype=int))
-                elif i <= len(ann_shape) - 1:
+                elif i < len(ann_shape) - 1:
                     # random biases vector [-1:1)
                     self.__annbias.append(2 * nm.random.random(tuple(ann_shape[i:i + 1])) - 1)
 
     def run(self, input_data, a = None):
-        # results below 'a' will be setted to 0
+        # results below 'a' will be set to 0
         if len(input_data) != self.__annshape[0] and input_data:
             raise ValueError(
                 f'Size of input should be {self.__annshape[0]}, you are trying to pass Len - {len(input_data)}; {input_data}' )
-
-        result = nm.dot(input_data, self.__hiddenlayer[0])
-
-        for i in range( len( self.__hiddenlayer ) - 1 ):
-            result = self.__actfnc(nm.dot(result + self.__annbias[i], self.__hiddenlayer[i + 1]))
-        return CutOff(sigma(result + self.__annbias[len(self.__annshape[1:-1])]), a).tolist()
+        result = input_data
+        for i in range(len(self.__hiddenlayer) - 1):
+            result = self.__actfnc(nm.dot(result, self.__hiddenlayer[i]) + self.__annbias[i])
+        return CutOff(sigma(nm.dot(result, self.__hiddenlayer[-1])), a).tolist()
         #return self.__actfnc(result + self.__annbiases[len(self.__annshape[1:-1])])
         # return CutOff ( self.__actfnc( result + self.__annbiases[len( self.__annshape[1:-1] )] ), a ).tolist()
 

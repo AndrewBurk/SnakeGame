@@ -19,10 +19,11 @@ class Game():
             self.__c = None
         self.__display = display
         self.__wWidth = width
+        # self.f=open('cut_off.csv','w+')
         self.__wHeight = height
         self.__seg_size = 20
         self.__listfoods = []
-        self.__food_lives = 60
+        self.__food_lives = 50
         self.__snakes = []
         self.__gameTime = 1
 
@@ -44,8 +45,8 @@ class Game():
         self.__listfoods.insert(0,[food, 0])
 
     def __resetfood__(self, n):
-        posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
-        posy = self.__seg_size * random.randint(1, (self.__wHeight - self.__seg_size) / self.__seg_size)
+        posx = self.__seg_size * random.randint(0, (self.__wWidth - self.__seg_size) / self.__seg_size)
+        posy = self.__seg_size * random.randint(0, (self.__wHeight - self.__seg_size) / self.__seg_size)
         self.__listfoods[n][1] = 0
         self.__listfoods[n][0].draw(posx, posy,
                                  posx + self.__seg_size, posy + self.__seg_size,
@@ -81,13 +82,20 @@ class Game():
     def add_snakes(self, count, control='random'):
         self.__gameTime = 1
         for i in range(count):
-            posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
-            posy = self.__seg_size * random.randint(1, (self.__wHeight - self.__seg_size) / self.__seg_size)
-            snake = Snake([Segment(posx + self.__seg_size, posy + self.__seg_size, self.__seg_size, self.__c),
-                           Segment(posx + self.__seg_size * 2, posy + self.__seg_size, self.__seg_size, self.__c),
-                           Segment(posx + self.__seg_size * 3, posy + self.__seg_size, self.__seg_size, self.__c,
-                                   "gray")])
-            self.__addfood__()
+            posx, posy = 44444, 44444
+            while posx + 4 * self.__seg_size >= self.__wWidth or posy + 4 * self.__seg_size >= self.__wHeight:
+                posx = self.__seg_size * random.randint(1, (self.__wWidth - self.__seg_size) / self.__seg_size)
+                posy = self.__seg_size * random.randint(1, (self.__wHeight - self.__seg_size) / self.__seg_size)
+            d = random.choice(['Vertical'])
+            if d == 'Horizontal':
+                snake = Snake([Segment(posx + self.__seg_size, posy + self.__seg_size, self.__seg_size, self.__c),
+                               Segment(posx + self.__seg_size * 2, posy + self.__seg_size, self.__seg_size, self.__c),
+                               Segment(posx + self.__seg_size * 3, posy + self.__seg_size, self.__seg_size, self.__c, "gray")], d)
+            else:
+                snake = Snake([Segment(posx + self.__seg_size, posy + self.__seg_size, self.__seg_size, self.__c),
+                        Segment(posx + self.__seg_size, posy + self.__seg_size * 2, self.__seg_size, self.__c),
+                        Segment(posx + self.__seg_size, posy + self.__seg_size * 3, self.__seg_size, self.__c, "gray")], d)
+
             if control == 'RANDOM':
                 self.__snakes.insert(0, [snake, 'RANDOM'])
             elif type(control) == tuple:
@@ -96,7 +104,7 @@ class Game():
                 self.__snakes.insert(0, [snake, 'HUMAN'])
             else:
                 raise ValueError(f'Unexpected arg. {control}')
-
+            self.__addfood__()
     def move(self):
         # counting all snakes; Need to loop only active
         for snake in list(filter(lambda x: x[0].is_active == 'y', self.__snakes)):
@@ -105,10 +113,8 @@ class Game():
             snake[0].lifeTime = self.__gameTime
             self.__listfoods[indexS][1] += 1
             if self.__listfoods[indexS][1] % self.__food_lives == 0:
-                # self.__resetfood__(indexS)
                 snake[0].reset_snake(self.__c, self.__gameTime, 'c')
                 self.__listfoods[indexS][0].delete(self.__c)
-
         self.__checkCollision__()
         self.__gameTime += 1
 
@@ -122,16 +128,13 @@ class Game():
                 r = int(input())
                 snake[0].change_direction(dir[r])
             else:
+                # tmp = snake[1].run(self.get_snake_position(snake))
                 d = snake[1].run(self.get_snake_position(snake), cut_off)
+                # self.f.write(f'{cut_off} {tmp[0]} {tmp[1]} {tmp[2]} {d[0]} {d[1]} {d[2]} {sum(d)}\n')
                 #index = max(enumerate(d), key=lambda x: x[1])[0]
                 #snake[0].change_direction(dir[index])
                 if sum(d) == 1:
                      snake[0].change_direction(dir[d.index(1)])
-                # else:
-                    # snake[0].change_direction((0,1,0,0))
-                    #indexS = self.__snakes.index(snake)
-                    #snake[0].reset_snake(self.__c, self.__gameTime, 'bad aan')
-                    #self.__listfoods[indexS][0].delete(self.__c)
 
     def get_active_snakes_count(self):
         count = 0
@@ -255,8 +258,8 @@ class Game():
         count_active_snakes = self.get_active_snakes_count()
         while count_active_snakes != 0:
             # self.get_snake_position(self.__snakes[0])
-            self.change_direction(cut_off)
             self.move()
+            self.change_direction(cut_off)
             if self.__display:
                 time.sleep(speed)
                 self.__root.update()

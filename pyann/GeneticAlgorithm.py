@@ -75,17 +75,19 @@ class GeneticAlgorithm:
             #r1 = random.choice(self.__selectionVector)
             r2 = random.choice(range(self.__population_size))
             if r1 != r2:
-                if i % 2 == 0:
+                if i % 3 == 0:
                     kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'sbx', 2.5)
                     childs.append(kids[0])
                     childs.append(kids[1])
-                    i += 1
-                else:
+                elif i % 3 == 2:
                     kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'Lbin')
                     childs.append(kids[0])
                     childs.append(kids[1])
-                    i += 1
-
+                else:
+                    kids = self.__crossover__(self.__population[r1][0], self.__population[r2][0], 'bin')
+                    childs.append(kids[0])
+                    childs.append(kids[1])
+            i += 1
         r1 = random.sample(self.__selectionVector,int(len(childs) * self.__m))
         for i in r1:
             childs.append(self.__mutation__(self.__population[i][0]))
@@ -146,7 +148,7 @@ class GeneticAlgorithm:
         #ch = self.__Bin__(ch)
         #s = '0' if ch[g] == '1' else '1'
         #return self.__Dec__(s+ ch[1:]) if g == 0 else self.__Dec__(ch[:g - 1] + s + s[g + 1:])
-        ch[g] += random.gauss(0, 0.25)
+        ch[g] = min(ch[g] + random.gauss(0, 0.25), 1)
         return ch
 
     def get_len_generation(self):

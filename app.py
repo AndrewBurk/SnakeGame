@@ -72,9 +72,15 @@ while i <= (NumberOfGeneration):
     # else:
     learning.update_population(temp_pop)
 
-    print(f'{i} Gen{k} {len(generation2)} NumPop {learning.get_len_generation()} SumFiness {int(sum(learning.get_fitness))} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),3)} maxLen {learning.get_max_len()}')
+    print(f'{i} Gen{k}({len(generation2)})  NumPop {learning.get_len_generation()} SumFiness {int(sum(learning.get_fitness))} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),3)} maxLen {learning.get_max_len()}')
     f.write(f'\n{i}  SumFitness {round(sum(learning.get_fitness),2)} avrTime {round(learning.get_avr_time(),2)} maxTime {learning.get_max_time()} avrLen {round(learning.get_avr_len(),4)} maxLen {learning.get_max_len()} \n {learning.get_best_chromosome()}')
 
+
+    if len(generation2) >= 100 and k != 10:
+        learning.add_population(generation2)
+        i = 0
+        k += 1
+        generation2 =[]
 
     cm = learning.crossover_mutation()
     game1.clear_snakes()
