@@ -14,6 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+.idea/
 lib/
 lib64/
 parts/
@@ -32,8 +33,11 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+.DS_Store
+*/.DS_Stote
 
 # Installer logs
+stst.txt
 pip-log.txt
 pip-delete-this-directory.txt
 
@@ -57,6 +61,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+stat.txt
 local_settings.py
 db.sqlite3
 db.sqlite3-journal

@@ -1,3 +1,6 @@
+
+import random
+
 class Segment(object):
     """ Single snake segment """
 
@@ -9,7 +12,7 @@ class Segment(object):
 
     def get_coords(self, canvas=None):
         return canvas.coords(self.__instance) if canvas != None else self.__instance
-
+      
     def draw(self, x1, y1, x2, y2, canvas=None):
         if canvas != None:
             canvas.coords(self.__instance, x1, y1, x2, y2)
@@ -21,21 +24,28 @@ class Segment(object):
             canvas.delete(self.__instance)
         else:
             self.__instance = ()
-
+            
 class Snake:
     """ Simple Snake class """
 
-    def __init__(self, segments):
+    def __init__(self, segments, dir):
         self.segments = segments
         # possible moves
-        self.mapping = {"Down": (0, 1), "Right": (1, 0),
-                        "Up": (0, -1), "Left": (-1, 0)}
+        # self.mapping = {"Down": (0, 1), "Right": (1, 0),
+        #                 "Up": (0, -1), "Left": (-1, 0)}
+
+        self.mapping = {'H_Right': (0, 1), 'V_Right': (1, 0),
+                        'H_Left': (0, -1), 'V_Left': (-1, 0)}
+        # direction could be Horizontal(H) or Vertical(V)
         # initial movement direction
-        self.direction = "Right"
-        self.vector = self.mapping["Right"]
+        # d = random.choice(['Horizontal', 'Vertical'])
+        self.direction = dir
+        self.vector = self.mapping[dir[0].upper() + '_Right']
         self.is_active = 'y'
         self.lifeTime = 0
-        self.__death = ('w', 's')  # w - collisium with wall. s - collisium with snake
+        self.countOfChangeDirection = 0
+        self.__death = ('w', 's', 'c')  # w - collisium with wall. s - collisium with snake
+
 
     def move(self, seg_size, canvas):
         """ Moves the snake with the specified vector"""
@@ -61,12 +71,14 @@ class Snake:
         #     self.vector = self.mapping[event.keysym]
         # dir = ['Down', 'Up', 'Left', 'Right']
         # r = random.randint(0, 3)
-        if (direction == 'Down' and self.direction != 'Up') or \
-                (direction == 'Up' and self.direction != 'Down') or \
-                (direction == 'Left' and self.direction != 'Right') or \
-                (direction == 'Right' and self.direction != 'Left'):
-            self.direction = direction
-            self.vector = self.mapping[direction]
+        if self.direction == 'Vertical' and direction != 'Continue':
+            self.vector = self.mapping['H_' + direction]
+            self.direction = 'Horizontal'
+            self.countOfChangeDirection += 1
+        elif self.direction == 'Horizontal' and direction != 'Continue':
+            self.vector = self.mapping['V_' + direction]
+            self.direction = 'Vertical'
+            self.countOfChangeDirection += 1
 
     def reset_snake(self, canvas, life_time, death):
         for segment in self.segments:
@@ -76,4 +88,4 @@ class Snake:
         self.__death = death
 
     def get_snake_attributes(self):
-        return len(self.segments), self.lifeTime, self.__death
+        return len(self.segments), self.lifeTime, self.__death, self.countOfChangeDirection
