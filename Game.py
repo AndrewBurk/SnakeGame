@@ -185,10 +185,10 @@ class Game():
         result.append(xh1 / self.__wWidth )  # direction left
         # ['Down', 'Up', 'Left', 'Right']
         # distance to the food;
-        result.append(1 + 0*(yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
-        result.append(1 + 0*(xf1 - xh1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
-        result.append(1 + 0*(yf1 - yh1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
-        result.append(1 + 0*(xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
+        result.append((yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
+        result.append((xf1 - xh1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
+        result.append((yf1 - yh1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
+        result.append((xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
 
          # dist to wall by croos
         result.append(yh1 / self.__wWidth if yh1 <= xh1 else xh1 / self.__wHeight) #A
@@ -197,10 +197,10 @@ class Game():
         result.append( xh1 /self.__wHeight if yh1 <= -xh1 + self.__wHeight else (self.__wWidth - yh1 - self.__seg_size) /self.__wWidth) #D
 
         # # dist to food by cos
-        result.append(1 + 0*(xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
-        result.append(1 + 0*(yh1 - yf1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
-        result.append(1 + 0*(xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
-        result.append(1 + 0*(yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
+        result.append((xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
+        result.append((yh1 - yf1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
+        result.append((xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
+        result.append((yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
 
 
         #result.append(1 if snake[0].direction == 'Up' else 0)

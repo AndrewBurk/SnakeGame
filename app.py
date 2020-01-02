@@ -1,7 +1,7 @@
 import Game
 import pyann
 
-SNAKE_COUNT = 500
+SNAKE_COUNT = 1000
 CUT_OFF = 0.46
 WEIDTH = 400
 HEIGHT = 400

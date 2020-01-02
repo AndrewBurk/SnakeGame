@@ -111,10 +111,13 @@ class GeneticAlgorithm:
         return self.__population[:self.__population_size]
 
     # NEw^^^
-    def __crossover__(self, ch1, ch2, type = 'SBX', n = None):
+    def __crossover__(self, ch1, ch2, type = 'SBX', eta = None):
         if len(ch1) != len(ch2):
             raise ValueError( f'Len of the chromosomes should have the same len. chromosome1 -  {len(ch1)} ; chromosome2 - {len(ch2)}.')
-        if type.upper() == 'BIN':
+        if type.upper() not in ('SPBX', 'SBX', 'LBIN'):
+            raise ValueError( f'Type of crossover should be: SPBX, SBX or LBIN')
+        if type.upper() == 'SPBX':
+            #single point binary crossover
             ch1_b = self.__Bin__(ch1)
             ch2_b = self.__Bin__(ch2)
             # half of genome will be changed
@@ -134,11 +137,12 @@ class GeneticAlgorithm:
                     kid1 = kid1[:i] + ch2_b[i] + kid1[i+1:]
             return self.__Dec__(kid1), self.__Dec__(kid2)
         elif type.upper() == 'SBX':
+            #Simulated Binary Crossover
             child1 = []
             child2 = []
             for i in range(len(ch1)):
                 r = random.random()
-                beta = (2*r) ** (1 / (1 + n)) if r <= 0.5 else (1/(2 * (1 - r))) ** (1 / (1 + n))
+                beta = (2*r) ** (1 / (1 + eta)) if r <= 0.5 else (1 / (2 * (1 - r))) ** (1 / (1 + eta))
                 child1.append(0.5 * ((1 - beta) * ch1[i] + (1 + beta) * ch2[i]))
                 child2.append(0.5 * ((1 - beta) * ch2[i] + (1 + beta) * ch1[i]))
             return child1, child2
