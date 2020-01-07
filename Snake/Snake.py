@@ -41,8 +41,10 @@ class Segment:
 class Snake:
     """ Simple Snake class """
     def __init__(self, start_cords, count_seg, seg_size, control, canvas):
-        self.mapping = {'H_Right': (0, 1), 'V_Right': (1, 0),
-                        'H_Left': (0, -1), 'V_Left': (-1, 0)}
+        self.mapping = {"Down": (0, 1), "Right": (1, 0),
+                        "Up": (0, -1), "Left": (-1, 0)}
+        self.direction = "Right"
+        self.vector = self.mapping["Right"]
         self.brain = control
         self.is_active = 'y'
         self.lifeTime = 0
@@ -50,14 +52,14 @@ class Snake:
         self.death = ('w', 's', 'c')  # w - collisium with wall. s - collisium with snake
         self.segments = []
         # direction could be Horizontal(H) or Vertical(V)
-        self.position = random.choice(('Vertical', 'Horizontal'))
-        self.vector = self.vector = self.mapping['H_Right'] if self.position == 'Vertical' else self.mapping['V_Right']
+        #self.position = random.choice(('Vertical', 'Horizontal'))
+        #self.vector = self.vector = self.mapping['H_Right'] if self.position == 'Vertical' else self.mapping['V_Right']
 
         for i in range(count_seg):
-            if self.position == 'Horizontal':
-                self.segments.append(Segment(start_cords[0] + seg_size * (i + 1), start_cords[1] + seg_size, seg_size, canvas))
-            else:
-                self.segments.append(Segment(start_cords[0] + seg_size, start_cords[1] + seg_size * (i + 1), seg_size, canvas))
+            #if self.direction == 'Right':
+            self.segments.append(Segment(start_cords[0] + seg_size * (i + 1), start_cords[1] + seg_size, seg_size, canvas))
+            #else:
+                #self.segments.append(Segment(start_cords[0] + seg_size, start_cords[1] + seg_size * (i + 1), seg_size, canvas))
 
         self.segments[-1].set_color('gray')
 
@@ -70,12 +72,12 @@ class Snake:
         # if self.position=='Vertical' and direction=='Left' :
         #     print('Alert');
 
-        if self.position == 'Vertical' and direction != 'Continue':
-            self.vector = self.mapping['V_' + direction]
-            self.position = 'Horizontal'
-        elif self.position == 'Horizontal' and direction != 'Continue':
-            self.vector = self.mapping['H_' + direction]
-            self.position = 'Vertical'
+        if (direction == 'Down' and self.direction != 'Up') or \
+                (direction == 'Up' and self.direction != 'Down') or \
+                (direction == 'Left' and self.direction != 'Right') or \
+                (direction == 'Right' and self.direction != 'Left'):
+            self.direction = direction
+            self.vector = self.mapping[direction]
 
         for index in range(len(self.segments) - 1):
             x1, y1, x2, y2 = self.segments[index + 1].get_cords()
@@ -83,11 +85,6 @@ class Snake:
 
         x1, y1, x2, y2 = self.segments[-2].get_cords()
         self.segments[-1].draw(x1, y1, x2, y2, self.vector)
-        # print(f'after {[x.get_cords() for x in self.segments]}')
-        # if self.segments[0].get_cords() == self.segments[-1].get_cords():
-        #     print('ALERT')
-        # else:
-        #     print('OK')
         self.lifeTime += 1
 
     def add_segment(self):

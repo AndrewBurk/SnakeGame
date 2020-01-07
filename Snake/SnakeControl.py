@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import random
 import numpy as np
 from pyann import ArtificialNeuralNetwork
-direction = ('Continue', 'Left', 'Right')
+direction = ('Down', 'Right', 'Up','Left')
 
 class  Direction(ABC):
     """To do"""
@@ -20,7 +20,7 @@ class HumanMove(Direction):
         #     self.vector = self.mapping[event.keysym]
         try:
             a = int(input("Enter direction: "))
-            if a not in (0, 1, 2):
+            if a not in (0, 1, 2, 3):
                 raise ValueError("Value should be in [0;3].")
             return direction[a]
         except ValueError:

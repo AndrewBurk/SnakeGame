@@ -9,7 +9,8 @@ def th(x):
 def softmax(x):
     return np.exp(x) / np.sum(np.exp(x))
 
-ReLU = lambda X: np.maximum(0, X)
+ReLU = lambda x: (abs(x) + x) / 2
+    #lambda x: np.maximum(0, x)
     #return (abs(x) + x) / 2
 
 def CutOff(x, a):

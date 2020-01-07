@@ -57,7 +57,10 @@ class Population(list):
 
     def get_max_len(self):
         lens = [x[1][0] for x in self]
-        return (max(lens), lens.count(max(lens))),(max(lens) -1, lens.count(max(lens)-1)),(max(lens) - 2, lens.count(max(lens)-2))
+        s = ""
+        for el in sorted(list(set(lens))):
+            s += f'({el},  {lens.count(el)}) '
+        return s
 
     def get_avr_len(self):
         tmp = [x[1][0] for x in self]
@@ -70,13 +73,10 @@ class Population(list):
         d = [x[1][2] for x in self]
         return ('w', d.count('w')), ('c', d.count('c')), ('s', d.count('s'))
 
-
-
 class GeneticAlgorithm:
-    def __init__(self, population: Population, survivors, m, crossover: GAStrategies, mutation: GAStrategies):
+    def __init__(self, population: Population, survivors, crossover: GAStrategies, mutation: GAStrategies):
         self.__population = population
         self.__s = survivors
-        self.__m = m
         self.__crossover = crossover
         self.__mutation = mutation
         self.__population_size = len(population)
@@ -85,13 +85,28 @@ class GeneticAlgorithm:
         # Am using Proportional selection to create a vector with candidates for selection
         tmp1, selection_vector = [], []
         sum_fitness = self.__population.get_sum_fitness()
-        while len(selection_vector) < int(self.__s * self.__population_size):
-            for i in range(len(self.__population)):
-                dm = divmod((self.__population.get_fitness(i) / sum_fitness) * 100, 1)
-                tmp1.clear()
-                tmp1.append(i)
-                selection_vector.extend(tmp1 * int(dm[0] + (1 if random.random() <= dm[1] else 0)))
+        for i in range(len(self.__population)):
+            dm = divmod((self.__population.get_fitness(i) / sum_fitness) * 100, 1)
+            tmp1.clear()
+            tmp1.append(i)
+            selection_vector.extend(tmp1 * int(dm[0] + (1 if random.random() <= dm[1] else 0)))
+        random.shuffle(selection_vector)
         return selection_vector
+
+    def __roulette_wheel_selection(self, num_individuals: int):
+        selection = []
+        wheel = self.__population.get_sum_fitness()
+        pop = [(x[0], self.__population.fitness(x[1])) for x in self.__population]
+        random.shuffle(pop)
+        for _ in range(num_individuals):
+            pick = random.uniform(0, wheel)
+            current = 0
+            for (i, individual) in enumerate(pop):
+                current += individual[1]
+                if current > pick:
+                    selection.append(individual[0])
+                    break
+        return selection
 
     def __iter__(self):
         return self
@@ -128,25 +143,17 @@ class GeneticAlgorithm:
         self.__population = Population(self.__population.fitness, self.__population[:self.__population_size])
 
     def get_childs(self) -> list:
-        selection_vector = self.__get_selection_vector()
         result = []
         i = 0
         while len(result) <= self.__s * self.__population_size:
-            r1, r2 = random.choice(selection_vector), random.choice(selection_vector)
-            if r1 != r2:
-                kids = self.__crossover[i % len(self.__crossover)].run(self.__population[r1][0], self.__population[r2][0])
-                result.append(kids[0])
-                result.append(kids[1])
-                i += 1
-
-        mutants_index = random.sample(range(len(self.__population) - 1), int(self.__population_size * self.__m))
-        for (i, p) in enumerate(mutants_index):
-            result.append(self.__mutation[i % len(self.__mutation)].run(self.__population[p][0]))
+            r = self.__roulette_wheel_selection(2)
+            kids = self.__crossover[i % len(self.__crossover)].run(r[0], r[1])
+            result.append(self.__mutation[i % len(self.__mutation)].run(kids[0]))
+            result.append(self.__mutation[i % len(self.__mutation)].run(kids[1]))
+            i += 1
         return result
 
     def add_population(self, p: Population) -> None:
-        #tmp = self.__population[:50]
-        #self.__population = Population(self.__population.fitness, tmp)
         self.__population.extend(p)
         self.__population = Population(self.__population.fitness, self.__population[:self.__population_size])
 

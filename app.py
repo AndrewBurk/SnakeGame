@@ -178,7 +178,7 @@ CUT_OFF = 0.46
 WEIDTH = 200
 HEIGHT = 200
 
-SHAPE_NETURAL_NETWORK = (26, 16, 12, 3)
+SHAPE_NETURAL_NETWORK = (32, 20, 12, 4)
 ACTIVATION_FUNCTION = 'RELu'
 
 def fitness(par):
@@ -194,14 +194,17 @@ def fitness(par):
 def main():
     f1 = Field(WEIDTH, HEIGHT, 20, False)
 
-    # f1.add_elements(HumanMove())
+    #f1.add_elements(HumanMove())
+    #f1.run()
+    #print('SADASDASd')
+
     for i in range(SNAKE_COUNT):
         f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True))
     f1.run()
     p = Population(fitness, f1.get_chromosomes())
-    print(f'Gen0 CoutCH {p.get_len_generation()} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(), 2)} maxTime {p.get_max_time()} avrLen {round(p.get_avr_len(), 3)} maxLen {p.get_max_len()} {p.count_death()}')
+    print(f'Gen0 CoutCH {p.get_len_generation()} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(), 2)} avrLen {round(p.get_avr_len(), 3)} maxLen {p.get_max_len()} {p.count_death()}')
 
-    ga = GeneticAlgorithm(p, 1, 0.11, [SBX(), SPBX()], [GaussianMutation(), BinaryMutation()])
+    ga = GeneticAlgorithm(p, 1.2, [SBX(), SPBX()], [GaussianMutation(0.08)])
     for gen_n in range(100000):
         child = ga.get_childs()
         f1.clear()
@@ -213,16 +216,10 @@ def main():
         f = open("stat.txt", 'w+')
         f.write(f'\n {Population(fitness,f1.get_chromosomes())[0]}')
 
-        #kids_parents = Population(fitness, p[:198] + f1.get_chromosomes())
-        #f1.clear()
-        #for c in kids_parents:
-        #    f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, list(c[0])))
-        #f1.run(speed=0.00005)
-
         ga.add_population(Population(fitness,f1.get_chromosomes()))
         gen_n += 1
         p = Population(fitness, ga.get_population())
-        print(f'Gen{gen_n} CoutCH {p.get_len_generation()} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(),2)} maxTime {p.get_max_time()} avrLen {round(p.get_avr_len(),3)} maxLen {p.get_max_len()} {p.count_death()}')
+        print(f'Gen{gen_n} CoutCH {p.get_len_generation()} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(),2)} avrLen {round(p.get_avr_len(),3)} maxLen {p.get_max_len()} {p.count_death()}')
 
 
     print('!!!end!!!')

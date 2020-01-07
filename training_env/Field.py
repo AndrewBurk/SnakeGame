@@ -109,10 +109,10 @@ class Field(TrainingEnv):
         result.append(xh1 / self.__wWidth )  # direction left
         # ['Down', 'Up', 'Left', 'Right']
         # distance to the food;
-        result.append((yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
-        result.append((xf1 - xh1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
-        result.append((yf1 - yh1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
-        result.append((xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
+        result.append(1 + 0 * (yh1 - yf1) / self.__wHeight if xf1 == xh1 and yf1 < yh1 else 0)  # direction up
+        result.append(1 + 0 * (xf1 - xh1) / self.__wWidth if yf1 == yh1 and xf1 > xh1 else 0)  # direction right
+        result.append(1 + 0 * (yf1 - yh1) / self.__wHeight if xf1 == xh1 and yf1 > yh1 else 0)  # direction down
+        result.append(1 + 0 * (xh1 - xf1) / self.__wWidth if yf1 == yh1 and xf1 < xh1 else 0)  # direction left
 
          # dist to wall by croos
         result.append(yh1 / self.__wWidth if yh1 <= xh1 else xh1 / self.__wHeight) #A
@@ -121,16 +121,22 @@ class Field(TrainingEnv):
         result.append( xh1 /self.__wHeight if yh1 <= -xh1 + self.__wHeight else (self.__wWidth - yh1 - self.__seg_size) /self.__wWidth) #D
 
         # # dist to food by cos
-        result.append((xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
-        result.append((yh1 - yf1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
-        result.append((xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
-        result.append((yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
+        result.append(1 + 0 * (xh1 - xf1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 < yh1 and xf1 < xh1 else 0) #A
+        result.append(1 + 0 * (yh1 - yf1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 >= yf1 and xf1 >= xh1 else 0)  # B
+        result.append(1 + 0 * (xf1 - xh1) /self.__wHeight if xf1 - yf1 + yh1 - xh1 == 0 and yf1 >= yh1 and xf1 >= xh1 else 0)  # C
+        result.append(1 + 0 * (yf1 - yh1) /self.__wWidth if -yf1 - xf1 + yh1 + xh1 == 0 and yh1 < yf1 and xf1 < xh1 else 0)  # D
 
+        result.append(1 if snake.direction == 'Down' else 0)
+        result.append(1 if snake.direction == 'Right' else 0)
+        result.append(1 if snake.direction == 'Up' else 0)
+        result.append(1 if snake.direction == 'Left' else 0)
 
-        result.append(1 if snake.position == 'Horizontal' else 0)
-        result.append(1 if snake.position == 'Vertical' else 0)
-        #result.append(1 if snake[0].direction == 'Left' else 0)
-        #result.append(1 if snake[0].direction == 'Down' else 0)
+        xt, yt = snake.segments[0].get_cords()[:2]
+        xnt, ynt = snake.segments[1].get_cords()[:2]
+        result.append(1 if (yt - ynt) > 0 and (xnt - xt == 0) else 0)
+        result.append(1 if (yt - ynt) == 0 and (xnt - xt > 0) else 0)
+        result.append(1 if (yt - ynt) < 0 and (xnt - xt == 0) else 0)
+        result.append(1 if (yt - ynt) == 0 and (xnt - xt < 0) else 0)
         # print(f'self up {result[0]} \n'
         #       f'self rigth {result[1]} \n'
         #       f'self down {result[2]} \n'
@@ -183,9 +189,9 @@ class Field(TrainingEnv):
             indexS = self.__snakes.index(snake)
             snake.move(self.__get_snake_position(snake))
             self.__foods[indexS][1] += 1
-            if self.__foods[indexS][1] % self.__food_lives == 0:
-                self.__reset_food(indexS, False)
-            if self.__foods[indexS][1] % (self.__food_lives*2) == 0:
+            #if self.__foods[indexS][1] % self.__food_lives == 0:
+            #    self.__reset_food(indexS, False)
+            if self.__foods[indexS][1] == self.__food_lives:
                 snake.reset_snake('c')
                 self.__foods[indexS][0].delete()
         self.__check_collision()
@@ -209,16 +215,3 @@ class Field(TrainingEnv):
 
     def get_chromosomes(self):
         return [(x.brain.get_chromosome(),x.get_snake_attributes()) for x in self.__snakes]
-
-    # def update_elements(self, ch:list):
-    #     self.__foods = []
-    #     for (index, ch) in enumerate(ch, start = 0):
-    #         if len(self.__snakes) - 1 >= index:
-    #             self.__snakes[index].brain.set_chromosome(ch)
-    #             self.__snakes[index].is_active = 'y'
-    #             self.__snakes[index].respalm(self.__wWidth,self.__wHeight,self.__canvas)
-    #         else:
-    #             self.__snakes.append(self.__snakes[0].clone().respalm(self.__wWidth,self.__wHeight,self.__canvas))
-    #             # self.__snakes[index + 1].respalm(self.__wWidth,self.__wHeight,self.__canvas)
-    #         self.__add_food()
-    #     self.__snakes = self.__snakes[:len(ch)]
