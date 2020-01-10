@@ -5,47 +5,34 @@ import bisect
 class Population(list):
     def __init__(self, fitness, l:list=None):
         self.fitness = fitness
-        super(Population, self).extend(l)
-        self.sort_by_fitness()
+        for el in l:
+            super(Population, self).append((el[0], el[1], fitness(el[1])))
+        # super(Population, self).extend(l)
+        # self.sort_by_fitness()
+    def __eq__(self, other):
+        self.clear()
 
     def __add__(self, other):
         return Population(self.fitness, super(Population,self).__add__(other))
-    # def __radd__(self, other):
-    #     if other:
-    #         self.__add__(other)
-    #     else:
-    #         return self
 
-    def append(self, object) -> None:
-        super(Population, self).append(object)
-        self.sort_by_fitness()
+    def append(self, el) -> None:
+        super(Population, self).append((el[0], el[1], self.fitness(el[1])))
+        # self.sort_by_fitness()
 
     def extend(self, iterable) -> None:
-        super(Population, self).extend(iterable)
-        self.sort_by_fitness()
+        super(Population, self).extend([(x[0], x[1], self.fitness(x[1])) for x in iterable])
+        # self.sort_by_fitness()
 
     def sort_by_fitness(self):
-        self.sort(key=(lambda x: self.fitness(x[1])), reverse=True)
-
-    def get_fitness(self, index = -1):
-        if index == -1:
-            res = []
-            for el in self:
-                res.append(self.fitness(el[1]))
-            return res
-        else:
-            return self.fitness(self[index][1])
+        self.sort(key=(lambda x: x[2]), reverse=True)
 
     def get_best_chromosome(self):
-        fitness = [x[1] for x in self.__population]
+        fitness = [x[2] for x in self]
         index_max_fitness = fitness.index(max(fitness))
-        return self.__population[index_max_fitness][0]
+        return self[index_max_fitness][0]
 
     def get_sum_fitness(self):
-        return sum([self.fitness(x[1]) for x in self])
-
-    def get_best_chromosome(self):
-        return self[0]
+        return sum([x[2] for x in self])
 
     def get_avr_time(self):
         tmp = [x[1][1] for x in self]
@@ -53,7 +40,7 @@ class Population(list):
 
     def get_max_time(self):
         tmp = [x[1][1] for x in self]
-        return max(tmp), round(self.fitness(self[tmp.index(max(tmp))][1]))
+        return max(tmp), round(self[tmp.index(max(tmp))][2])
 
     def get_max_len(self):
         lens = [x[1][0] for x in self]
@@ -66,8 +53,8 @@ class Population(list):
         tmp = [x[1][0] for x in self]
         return sum(tmp)/len(tmp)
 
-    def get_len_generation(self):
-        return len(self)
+    # def get_len_generation(self):
+    #     return len(self)
 
     def count_death(self):
         d = [x[1][2] for x in self]
@@ -96,66 +83,34 @@ class GeneticAlgorithm:
     def __roulette_wheel_selection(self, num_individuals: int):
         selection = []
         wheel = self.__population.get_sum_fitness()
-        pop = [(x[0], self.__population.fitness(x[1])) for x in self.__population]
-        random.shuffle(pop)
         for _ in range(num_individuals):
             pick = random.uniform(0, wheel)
             current = 0
-            for (i, individual) in enumerate(pop):
-                current += individual[1]
+            for (i, individual) in enumerate(self.__population):
+                current += individual[2]
                 if current > pick:
                     selection.append(individual[0])
                     break
         return selection
 
-    def __iter__(self):
-        return self
-    def __next__(self):
-        if self.__current_generation > self.__number_generation:
-            raise StopIteration()
-        else:
-            selection_vector = self.__get_selection_vector()
-            result = []
-            while len(result) <= self.__s * self.__population_size:
-                r1, r2 = random.choice(selection_vector), random.choice(selection_vector)
-                if r1 != r2:
-                    kids = self.__crossover.run(self.__population[r1][0],self.__population[r2][0])
-                    result.append(kids[0])
-                    result.append(kids[1])
-
-            mutants_index = random.sample(range(len(self.__population) - 1), int(self.__population_size * self.__m))
-            for p in mutants_index:
-                result.append(self.__mutation.run(self.__population[p][0]))
-
-            self.__env.update_elements(result)
-            self.__env.run()
-            self.__population.extend(self.__env.get_chromosomes())
-            self.__population.sort_by_fitness()
-            tmp = self.__population[:self.__population_size]
-            self.__population.clear()
-            self.__population.extend(tmp)
-            self.__current_generation += 1
-            return self.__population
-
-    def update_population(self, individuals):
-        self.__population.clear()
+    def add_population(self, individuals):
         self.__population.extend(individuals)
+        self.__population.sort_by_fitness()
         self.__population = Population(self.__population.fitness, self.__population[:self.__population_size])
+        random.shuffle(self.__population)
 
     def get_childs(self) -> list:
         result = []
         i = 0
+        r = self.__roulette_wheel_selection(500)
         while len(result) <= self.__s * self.__population_size:
-            r = self.__roulette_wheel_selection(2)
-            kids = self.__crossover[i % len(self.__crossover)].run(r[0], r[1])
+            ch1 = r[random.randint(0,499)]
+            ch2 = r[random.randint(0, 499)]
+            kids = self.__crossover[random.randint(0,len(self.__crossover) - 1)].run(ch1, ch2)
             result.append(self.__mutation[i % len(self.__mutation)].run(kids[0]))
             result.append(self.__mutation[i % len(self.__mutation)].run(kids[1]))
             i += 1
         return result
-
-    def add_population(self, p: Population) -> None:
-        self.__population.extend(p)
-        self.__population = Population(self.__population.fitness, self.__population[:self.__population_size])
 
     def get_population(self):
         return self.__population

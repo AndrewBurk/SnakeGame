@@ -39,16 +39,21 @@ class Field(TrainingEnv):
         # list of foods has time of food living(second parameter) and food itself
         self.__foods.append([food, 0])
 
-    def __reset_food(self, n, reset_time = True):
+    def __reset_food(self, n):
+        snake_coord = tuple((x.get_cords()[0], x.get_cords()[1]) for x in self.__snakes[n].segments)
         posx = self.__seg_size * random.randint(0, (self.__wWidth - self.__seg_size) / self.__seg_size)
         posy = self.__seg_size * random.randint(0, (self.__wHeight - self.__seg_size) / self.__seg_size)
-        self.__foods[n][1] = 0 if reset_time else self.__foods[n][1]
+        while (posx, posy) in snake_coord:
+            posx = self.__seg_size * random.randint(0, (self.__wWidth - self.__seg_size) / self.__seg_size)
+            posy = self.__seg_size * random.randint(0, (self.__wHeight - self.__seg_size) / self.__seg_size)
+        self.__foods[n][1] = 0
         self.__foods[n][0].draw(posx, posy,
                                 posx + self.__seg_size, posy + self.__seg_size)
 
     def __check_collision(self):
         for snake in filter(lambda x: x.is_active == 'y', self.__snakes):
             indexS = self.__snakes.index(snake)
+            del_index = []
             food_coords = self.__foods[indexS][0].get_cords()
             head_coords = snake.segments[-1].get_cords()
             x1, y1, x2, y2 = head_coords
@@ -56,6 +61,7 @@ class Field(TrainingEnv):
             if x2 > self.__wWidth or x1 < 0 or y1 < 0 or y2 > self.__wHeight:
                 snake.reset_snake('w')
                 self.__foods[indexS][0].delete()
+                del_index.append(indexS)
             # Eating apples
             elif head_coords == food_coords:
                 snake.add_segment()
@@ -66,6 +72,9 @@ class Field(TrainingEnv):
                     if head_coords == snake.segments[index].get_cords():
                         snake.reset_snake('s')
                         self.__foods[indexS][0].delete()
+                        del_index.append(indexS)
+            # for di in del_index:
+            #     del(self.__foods[di])
 
     def __get_snake_position(self, snake):
         # Return vector of size 4*3=12
@@ -133,9 +142,9 @@ class Field(TrainingEnv):
 
         xt, yt = snake.segments[0].get_cords()[:2]
         xnt, ynt = snake.segments[1].get_cords()[:2]
-        result.append(1 if (yt - ynt) > 0 and (xnt - xt == 0) else 0)
-        result.append(1 if (yt - ynt) == 0 and (xnt - xt > 0) else 0)
         result.append(1 if (yt - ynt) < 0 and (xnt - xt == 0) else 0)
+        result.append(1 if (yt - ynt) == 0 and (xnt - xt > 0) else 0)
+        result.append(1 if (yt - ynt) > 0 and (xnt - xt == 0) else 0)
         result.append(1 if (yt - ynt) == 0 and (xnt - xt < 0) else 0)
         # print(f'self up {result[0]} \n'
         #       f'self rigth {result[1]} \n'
@@ -161,10 +170,14 @@ class Field(TrainingEnv):
         #       f'cros food B {result[21]} \n'
         #       f'cros food C {result[22]} \n'
         #       f'cros food D {result[23]} \n'
-        #       f'head up {result[24]} \n'
+        #       f'head down {result[24]} \n'
         #       f'head right {result[25]} \n'
-        #       f'head left {result[26]} \n'
-        #       f'head down {result[27]} \n'
+        #       f'head up {result[26]} \n'
+        #       f'head left {result[27]} \n'
+        #       f'tail down {result[28]} \n'
+        #       f'tail right {result[29]} \n'
+        #       f'tail up {result[30]} \n'
+        #       f'tail left {result[31]} \n'
         #       f'xh {xh1/self.__wWidth} \n'
         #       f'yh {yh1/self.__wWidth} \n'
         #       f'xf {xf1/self.__wWidth} \n'

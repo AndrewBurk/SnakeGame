@@ -35,8 +35,12 @@ class Segment:
         else:
             self.__instance = ()
 
-    def clone(self):
-        return Segment(self.get_cords()[0], self.get_cords()[1], self.__seg_size, self.__canvas)
+    def clone(self, x=None, y=None):
+        if x is None:
+            x = self.get_cords()[0]
+        if y is None:
+            y = self.get_cords()[1]
+        return Segment(x, y, self.__seg_size, self.__canvas)
             
 class Snake:
     """ Simple Snake class """
@@ -89,7 +93,9 @@ class Snake:
 
     def add_segment(self):
         """ Adds segment to the snake """
-        self.segments.insert(0, self.segments[0].clone())
+        xt, yt = self.segments[0].get_cords()[:2]
+        xnt, ynt = self.segments[1].get_cords()[:2]
+        self.segments.insert(0, self.segments[0].clone(xt + self.seg_size * (xt - xnt), yt + self.seg_size * (yt - ynt)))
 
     def reset_snake(self, death):
         for segment in self.segments:
@@ -98,4 +104,4 @@ class Snake:
         self.death = death
 
     def get_snake_attributes(self):
-        return len(self.segments), self.lifeTime, self.death
+        return len(self.segments) - 3, self.lifeTime, self.death

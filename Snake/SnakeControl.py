@@ -18,11 +18,13 @@ class HumanMove(Direction):
     def get_direction(self, *args):
         # if event.keysym in self.mapping:
         #     self.vector = self.mapping[event.keysym]
+        dir = {"w":2, "s":0, "d":1, "a":3}
         try:
-            a = int(input("Enter direction: "))
-            if a not in (0, 1, 2, 3):
+            a = (input("Enter direction: "))
+            if a not in ('w', 's', 'a', 'd'):
                 raise ValueError("Value should be in [0;3].")
-            return direction[a]
+            print(dir[a])
+            return direction[dir[a]]
         except ValueError:
             print("Please enter number.")
 

@@ -186,23 +186,20 @@ def fitness(par):
     t = par[1]
     d = par[2]
 
-    # c = par[3] # number of changed direction
-    #return (l ** 2) * t * c - (5 * t if (d == 'w' and d != 'c') else t * 0.5)
-    # return 10 * l ** 6 + t - (t ** 2) / (l - 2) ** 3
-    return (t + (2 ** (l-2) + 500 * (l-2) ** 2.1) - ((l-2)**1.2 * (0.25 * t) ** 1.3)) #* (0.8 if d == 'c' else 1)
+    return (t + (2 ** l + (l ** 2.1) * 500 - (l**1.2 * (0.25 * t) ** 1.3))) #* (0.8 if d == 'c' else 1)
 
 def main():
     f1 = Field(WEIDTH, HEIGHT, 20, False)
 
-    #f1.add_elements(HumanMove())
-    #f1.run()
+    # f1.add_elements(HumanMove())
+    # f1.run()
     #print('SADASDASd')
 
     for i in range(SNAKE_COUNT):
         f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True))
     f1.run()
     p = Population(fitness, f1.get_chromosomes())
-    print(f'Gen0 CoutCH {p.get_len_generation()} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(), 2)} avrLen {round(p.get_avr_len(), 3)} maxLen {p.get_max_len()} {p.count_death()}')
+    print(f'Gen0 CoutCH {len(p)} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(), 2)} avrLen {round(p.get_avr_len(), 3)} maxLen {p.get_max_len()} {p.count_death()}')
 
     ga = GeneticAlgorithm(p, 1.2, [SBX(), SPBX()], [GaussianMutation(0.08)])
     for gen_n in range(100000):
@@ -213,14 +210,12 @@ def main():
             f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, c))
         f1.run(speed=0.00005)
 
-        f = open("stat.txt", 'w+')
-        f.write(f'\n {Population(fitness,f1.get_chromosomes())[0]}')
-
-        ga.add_population(Population(fitness,f1.get_chromosomes()))
+        ga.add_population(f1.get_chromosomes())
         gen_n += 1
         p = Population(fitness, ga.get_population())
-        print(f'Gen{gen_n} CoutCH {p.get_len_generation()} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(),2)} avrLen {round(p.get_avr_len(),3)} maxLen {p.get_max_len()} {p.count_death()}')
-
+        print(f'Gen{gen_n} CoutCH {len(p)} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(),2)} avrLen {round(p.get_avr_len(),3)} maxLen {p.get_max_len()} {p.count_death()}')
+        f = open("stat.txt", 'w+')
+        f.write(f'\n {p.get_best_chromosome()}')
 
     print('!!!end!!!')
 if __name__ == "__main__":
