@@ -4,7 +4,7 @@ import numpy as np
 from pyann import ArtificialNeuralNetwork
 direction = ('Down', 'Right', 'Up','Left')
 
-class  Direction(ABC):
+class Direction(ABC):
     """To do"""
     @abstractmethod
     def get_direction(self, *args):
@@ -23,7 +23,6 @@ class HumanMove(Direction):
             a = (input("Enter direction: "))
             if a not in ('w', 's', 'a', 'd'):
                 raise ValueError("Value should be in [0;3].")
-            print(dir[a])
             return direction[dir[a]]
         except ValueError:
             print("Please enter number.")

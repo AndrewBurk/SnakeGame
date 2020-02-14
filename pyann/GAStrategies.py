@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import random
-
+import numpy as np
 def clip(x,a,b):
     if x < a:
         return a
@@ -58,13 +58,15 @@ class BinaryMutation(CrossoverMutation):
     def __init__(self, prop_gen_mutation=0.05, prop_mutation_occurs=1):
         self.__prop_gen_mutation = prop_gen_mutation
         self.__prop_mutation_occurs = prop_mutation_occurs
+        super().__init__()
 
     def run(self, ch1, ch2 = None):
         if random.random() < self.__prop_mutation_occurs:
             ch1_b = self.__Bin__(ch1)
             for i in range(len(ch1_b)):
                 if random.random() < self.__prop_gen_mutation:
-                    ch1_b[i] = '0' if ch1_b[i] == '1' else '1'
+                    s = '0' if ch1_b[i] == '1' else '1'
+                    ch1_b = ch1_b[:i] + s + ch1_b[i+1:]
             return self.__Dec__(ch1_b)
         else:
             return ch1
@@ -75,21 +77,21 @@ class SBX(CrossoverMutation):
     def __init__(self, eta=100):
         self.__eta = eta
 
-    def run(self, ch1, ch2, **param):
+    def run(self, ch1: np.ndarray, ch2: np.ndarray):
         if len(ch1) != len(ch2):
             raise ValueError(f'Len of chromosomes should have the same len. chromosome1 -  {len(ch1)} ; chromosome2 - {len(ch2)}.')
-        child1 = []
-        child2 = []
 
         if max(ch1) > 1 or min(ch1) < -1 or max(ch2) > 1 or min(ch2) < -1:
             raise ValueError(f'Blya!!')
 
-        r = random.random()
-        beta = (2 * r) ** (1 / (1 + self.__eta)) if r <= 0.5 else (1 / (2 * (1 - r))) ** (1 / (1 + self.__eta))
-        for i in range(len(ch1)):
-            child1.append(clip(0.5 * ((1 - beta) * ch1[i] + (1 + beta) * ch2[i]), -1., 1.))
-            child2.append(clip(0.5 * ((1 - beta) * ch2[i] + (1 + beta) * ch1[i]), -1., 1.))
-        return child1, child2
+        r = np.random.random(ch1.shape)
+        beta = np.empty(ch1.shape)
+        beta[r <= 0.5] = (2 * r[r <= 0.5]) ** (1 / (1 + self.__eta))
+        beta[r > 0.5]  = (1 / (2 * (1 - r[r > 0.5]))) ** (1 / (1 + self.__eta))
+        child1 = 0.5 * ((1 - beta) * ch1 + (1 + beta) * ch2)
+        child2 = 0.5 * ((1 - beta) * ch2 + (1 + beta) * ch1)
+
+        return np.clip(child1, -1., 1.), np.clip(child2, -1., 1.)
 
 class MPBX(CrossoverMutation):
     """multi point binary crossover"""
