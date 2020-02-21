@@ -13,6 +13,7 @@ class CrossoverMutation(ABC):
     def __init__(self):
         self.__min = -1
         self.__max = 1
+        self.__e = 25
 
     def __Bin__(self, v):
         # I assume that value will be from -1 to 1. e = 0.01
@@ -21,8 +22,8 @@ class CrossoverMutation(ABC):
         # for e=0.01 l = 6
         res = ''
         for x in v:
-            s = bin(int((x - self.__min)*(2 ** 7 - 1)/(self.__max - self.__min))).replace('0b', '')
-            for i in range(7 - len(s)):
+            s = bin(int((x - self.__min)*(2 ** self.__e - 1)/(self.__max - self.__min))).replace('0b', '')
+            for i in range(self.__e - len(s)):
                 s = '0' + s
             res += s
         return res
@@ -30,10 +31,10 @@ class CrossoverMutation(ABC):
     def __Dec__(self, s):
         res = []
         i = 0
-        while i < len(s) - 7:
-            x = self.__min + int('0b' + s[i: i + 7], 2)*(self.__max - self.__min)/(2 ** 7 - 1)
+        while i <= len(s) - self.__e:
+            x = self.__min + int('0b' + s[i: i + self.__e], 2)*(self.__max - self.__min)/(2 ** self.__e - 1)
             res.append(x)
-            i += 7
+            i += self.__e
         return res
 
     @abstractmethod
@@ -109,7 +110,7 @@ class MPBX(CrossoverMutation):
                 child1 = child1[:i] + ch2_b[i] + child1[i + 1:]
         return self.__Dec__(child1), self.__Dec__(child2)
 
-class SPBX(CrossoverMutation):
+class SPBX_BIN(CrossoverMutation):
     """single point binary crossover"""
     def __init__(self):
         super().__init__()
@@ -120,3 +121,9 @@ class SPBX(CrossoverMutation):
         # half of genome will be changed
         r = random.randint(1,len(ch1)-1)
         return self.__Dec__(ch1_b[:r] + ch2_b[r:]), self.__Dec__(ch2_b[:r] + ch1_b[r:])
+
+class SPBX(CrossoverMutation):
+    def run(self, ch1, ch2):
+        r = random.randint(1,len(ch1)-1)
+        return np.concatenate((ch1[:r],ch2[r:])), np.concatenate((ch2[:r], ch1[r:]))
+

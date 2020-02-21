@@ -2,7 +2,7 @@ from training_env.Field import Field
 from Snake.SnakeControl import *
 from pyann import *
 
-
+#(32, 20, 12, 4)
 s =[0.12088765,0.00649581,0.49600111,-0.97184066,-0.0935906,0.50294981
 ,-0.80747729,0.19876756,0.20203489,0.6794029,0.48749064,-0.03497914
 ,0.55964332,0.50082631,-0.90515726,0.37076653,0.74299156,-0.66567631
@@ -973,7 +973,7 @@ s4 = [0.11958777,0.00634439,0.45197772,-0.95924041,-0.09490882,0.50415096
 ,-0.15576525,0.99998946,-0.99978011,0.51176265,0.54889479,-0.12741856
 ,0.49729961,0.70209529,0.51556851,0.64268908]
 
-SNAKE_COUNT = 750
+SNAKE_COUNT = 500
 CUT_OFF = 0.46
 WEIDTH = 200
 HEIGHT = 200
@@ -988,11 +988,11 @@ def fitness(par):
     return (t + (2 ** l + (l ** 2.1) * 500 - (l**1.2 * (0.25 * t) ** 1.3))) #* (0.8 if d == 'c' else 1)
 
 def main():
-    f1 = Field(WEIDTH, HEIGHT, 20, True)
-    for i in range(100):
-       f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True,s))
-       f1.run(speed=0.1)
-       f1.clear()
+    f1 = Field(WEIDTH, HEIGHT, 20, False)
+    # for i in range(100):
+    #    f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True,s))
+    #    f1.run(speed=0.1)
+    #    f1.clear()
 
     # f1.add_elements(HumanMove())
     # f1.run()
@@ -1002,13 +1002,13 @@ def main():
     f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, s2))
     f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, s3))
     f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True, s4))
-    for i in range(SNAKE_COUNT - 5):
+    for i in range(SNAKE_COUNT-5):
         f1.add_elements(ANNMove(CUT_OFF, SHAPE_NETURAL_NETWORK, ACTIVATION_FUNCTION, True))
     f1.run()
     p = Population(fitness, f1.get_chromosomes())
     print(f'Gen0 CoutCH {len(p)} SumFiness {int(p.get_sum_fitness())} avrTime {round(p.get_avr_time(), 2)} avrLen {round(p.get_avr_len(), 3)} maxLen {p.get_max_len()} {p.count_death()}')
 
-    ga = GeneticAlgorithm(p, 1, [SBX(eta=100), SPBX()], [GaussianMutation(0.05)])
+    ga = GeneticAlgorithm(p, 1, [SBX(eta=100), SPBX()], [GaussianMutation(0.1)])
     for gen_n in range(100000):
         child = ga.get_childs()
         f1.clear()
